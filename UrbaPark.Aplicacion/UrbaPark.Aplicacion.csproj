@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="ServicioImpl\" />
+    <Folder Include="Servicio\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Urbapark.Dominio.Modelo\UrbaPark.Dominio.Modelo.csproj" />
+    <ProjectReference Include="..\UrbaPark.Dominio.Servicio\UrbaPark.Dominio.Servicio.csproj" />
+    <ProjectReference Include="..\UrbaPark.Infraestructura.AccesoDatos\UrbaPark.Infraestructura.AccesoDatos.csproj" />
+  </ItemGroup>
+
+</Project>
