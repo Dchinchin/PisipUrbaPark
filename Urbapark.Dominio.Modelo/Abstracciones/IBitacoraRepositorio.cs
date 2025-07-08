@@ -7,8 +7,8 @@ using UrbaPark.Infraestructura.AccesoDatos;
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface IBitacoraRepositorio : IRepositorio<Bitacora>
+    public interface IBitacoraRepositorio: IRepositorio<Bitacora>
     {
-        Task<List<Bitacora>> ListarBitacoraActivo();
+        Task<List<Bitacora>> ListarBitacora();
     }
 }

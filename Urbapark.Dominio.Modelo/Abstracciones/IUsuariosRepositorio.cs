@@ -7,8 +7,7 @@ using UrbaPark.Infraestructura.AccesoDatos;
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface IUsuariosRepositorio : IRepositorio<Usuarios>
+    public interface IUsuariosRepositorio : IRepositorio <Usuarios>
     {
-        Task<List<Usuarios>> ListarUsuariosActivo();
     }
 }

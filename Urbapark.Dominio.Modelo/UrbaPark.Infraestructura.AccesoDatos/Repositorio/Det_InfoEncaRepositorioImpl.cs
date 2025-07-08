@@ -7,18 +7,13 @@ using UrbaPark.Dominio.Modelo.Abstracciones;
 
 namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
 {
-    public class BitacoraRepositorioImpl : RepositorioImpl<Bitacora>, IBitacoraRepositorio
+    public class Det_InfoEncaRepositorioImpl : RepositorioImpl<Informes_Encabezado>, IInfo_EncaRepositorio
     {
         private readonly Pisip_UrbanParkContext _UrbanParkContext;
 
-        public BitacoraRepositorioImpl(Pisip_UrbanParkContext dbContext) : base(dbContext)
+        public Det_InfoEncaRepositorioImpl(Pisip_UrbanParkContext dbContext) : base(dbContext)
         {
             _UrbanParkContext = dbContext;
-        }
-
-        public Task<List<Bitacora>> ListarBitacora()
-        {
-            throw new NotImplementedException();
         }
     }
 }

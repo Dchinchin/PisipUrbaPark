@@ -7,8 +7,7 @@ using UrbaPark.Infraestructura.AccesoDatos;
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface IInfo_EncaRepositorio : IRepositorio<Informes_Encabezado>
+    public interface IInfo_EncaRepositorio: IRepositorio<Informes_Encabezado>
     {
-        Task<List<Informes_Encabezado>> ListarInfo_EncaActivo();
     }
 }
