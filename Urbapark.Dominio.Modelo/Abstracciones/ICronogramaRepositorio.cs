@@ -7,7 +7,8 @@ using UrbaPark.Infraestructura.AccesoDatos;
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface ICronogramaRepositorio: IRepositorio<Cronogramas>
+    public interface ICronogramaRepositorio : IRepositorio<Cronogramas>
     {
+        Task<List<Cronogramas>> ListarCronogramaActivo();
     }
 }

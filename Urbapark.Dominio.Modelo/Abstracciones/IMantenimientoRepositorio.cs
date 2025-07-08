@@ -7,7 +7,8 @@ using UrbaPark.Infraestructura.AccesoDatos;
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface IMantenimientoRepositorio: IRepositorio<Mantenimientos>
+    public interface IMantenimientoRepositorio : IRepositorio<Mantenimientos>
     {
+        Task<List<Mantenimientos>> ListarMantenimientoActivo();
     }
 }

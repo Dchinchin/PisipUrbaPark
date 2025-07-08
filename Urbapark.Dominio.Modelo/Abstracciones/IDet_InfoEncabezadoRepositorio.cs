@@ -7,8 +7,8 @@ using UrbaPark.Infraestructura.AccesoDatos;
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface IRolesRepositorio : IRepositorio<Roles>
+    public interface IDet_InfoEncabezadoRepositorio : IRepositorio<Detalle_Informe>
     {
-        Task<List<Roles>> ListarRolesActivo();
+        Task<List<Detalle_Informe>> ListarDet_InfoEncabezadoActivo();
     }
 }
