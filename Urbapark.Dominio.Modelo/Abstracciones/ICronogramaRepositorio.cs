@@ -9,5 +9,7 @@ namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
     public interface ICronogramaRepositorio: IRepositorio<Cronogramas>
     {
+        Task<List<Cronogramas>> ListarCronograma();
+
     }
 }

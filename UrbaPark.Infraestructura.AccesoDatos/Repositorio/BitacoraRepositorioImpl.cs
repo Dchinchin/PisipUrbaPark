@@ -15,5 +15,10 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
         {
             _UrbanParkContext = dbContext;
         }
+
+        public Task<List<Bitacora>> ListarBitacora()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

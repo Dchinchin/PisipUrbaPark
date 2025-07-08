@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrbaPark.Infraestructura.Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbaParkAPIWeb", "UrbaParkAPIWeb\UrbaParkAPIWeb.csproj", "{03DB48FD-3CB1-4F70-9E76-476E005361AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUrbaPark", "TestUrbaPark\TestUrbaPark.csproj", "{785EE8D2-4AB5-4509-AE8E-7B5F8D898C55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{03DB48FD-3CB1-4F70-9E76-476E005361AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03DB48FD-3CB1-4F70-9E76-476E005361AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03DB48FD-3CB1-4F70-9E76-476E005361AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{785EE8D2-4AB5-4509-AE8E-7B5F8D898C55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{785EE8D2-4AB5-4509-AE8E-7B5F8D898C55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{785EE8D2-4AB5-4509-AE8E-7B5F8D898C55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{785EE8D2-4AB5-4509-AE8E-7B5F8D898C55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +93,7 @@ Global
 		{68EB38B0-59BA-4E0E-ABF0-B415AFB98255} = {F190CA77-80BD-4566-8D4A-4509E3863B04}
 		{2F94E49F-4BE7-4EC6-99DC-8486BA0641ED} = {F190CA77-80BD-4566-8D4A-4509E3863B04}
 		{03DB48FD-3CB1-4F70-9E76-476E005361AD} = {F73C1B8C-9348-4652-B350-C5DCA5921C7D}
+		{785EE8D2-4AB5-4509-AE8E-7B5F8D898C55} = {A6147663-7EC9-4A62-8F41-969FDBBB8704}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B61B8138-139A-446E-B907-C32AD964B512}

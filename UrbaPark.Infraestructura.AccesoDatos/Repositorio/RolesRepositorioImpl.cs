@@ -16,6 +16,9 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
            _UrbanParkContext = dbContext;
         }
 
-    
+        public Task<List<Roles>> ListarRoles()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

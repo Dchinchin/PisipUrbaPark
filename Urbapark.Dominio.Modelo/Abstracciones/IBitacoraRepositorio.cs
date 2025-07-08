@@ -9,5 +9,6 @@ namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
     public interface IBitacoraRepositorio: IRepositorio<Bitacora>
     {
+        Task<List<Bitacora>> ListarBitacora();
     }
 }

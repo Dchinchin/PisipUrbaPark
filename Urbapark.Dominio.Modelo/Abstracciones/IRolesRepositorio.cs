@@ -9,5 +9,7 @@ namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
     public interface IRolesRepositorio: IRepositorio<Roles>
     {
+        Task<List<Roles>> ListarRoles();
+
     }
 }
