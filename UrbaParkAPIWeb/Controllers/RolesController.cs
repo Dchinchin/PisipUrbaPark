@@ -22,7 +22,7 @@ public class RolesController : ControllerBase
         return Ok(roles);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<RolDto>> Get(int id)
     {
         var rol = await _rolAppService.GetRolByIdAsync(id);
@@ -44,7 +44,7 @@ public class RolesController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdRol.IdRol }, createdRol);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateRolDto rolDto)
     {
         if (id != rolDto.IdRol)
@@ -68,7 +68,7 @@ public class RolesController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try

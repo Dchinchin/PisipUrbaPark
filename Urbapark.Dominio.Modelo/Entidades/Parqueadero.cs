@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace UrbaPark.Dominio.Modelo.Entidades;
 
-public partial class Parquadero
+public partial class Parqueadero
 {
     public int IdParqueadero { get; set; }
 

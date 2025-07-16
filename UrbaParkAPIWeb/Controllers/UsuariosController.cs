@@ -22,7 +22,7 @@ public class UsuariosController : ControllerBase
         return Ok(usuarios);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<UsuarioDto>> Get(int id)
     {
         var usuario = await _usuarioAppService.GetUsuarioByIdAsync(id);
@@ -44,7 +44,7 @@ public class UsuariosController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdUsuario.IdUsuario }, createdUsuario);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateUsuarioDto usuarioDto)
     {
         if (id != usuarioDto.IdUsuario)
@@ -68,7 +68,7 @@ public class UsuariosController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try
@@ -91,5 +91,33 @@ public class UsuariosController : ControllerBase
             return Ok(true);
         }
         return Unauthorized(false);
+    }
+
+    [HttpPut("{id:int}/activar")]
+    public async Task<IActionResult> ActivarUsuario(int id)
+    {
+        try
+        {
+            await _usuarioAppService.ActivarUsuario(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPut("{id:int}/desactivar")]
+    public async Task<IActionResult> DesactivarUsuario(int id)
+    {
+        try
+        {
+            await _usuarioAppService.DesactivarUsuario(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

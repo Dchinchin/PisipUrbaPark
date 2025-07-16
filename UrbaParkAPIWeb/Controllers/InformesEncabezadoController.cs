@@ -22,7 +22,7 @@ public class InformesEncabezadoController : ControllerBase
         return Ok(informes);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<InformeEncabezadoDto>> Get(int id)
     {
         var informe = await _informeEncabezadoAppService.GetInformeEncabezadoByIdAsync(id);
@@ -44,7 +44,7 @@ public class InformesEncabezadoController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdInforme.IdInforme }, createdInforme);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateInformeEncabezadoDto informeEncabezadoDto)
     {
         if (id != informeEncabezadoDto.IdInforme)
@@ -68,7 +68,7 @@ public class InformesEncabezadoController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try

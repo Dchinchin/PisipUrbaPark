@@ -22,7 +22,7 @@ public class DetalleInformeController : ControllerBase
         return Ok(detalles);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<DetalleInformeDto>> Get(int id)
     {
         var detalle = await _detalleInformeAppService.GetDetalleInformeByIdAsync(id);
@@ -44,7 +44,7 @@ public class DetalleInformeController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdDetalle.IdDetInfo }, createdDetalle);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateDetalleInformeDto detalleInformeDto)
     {
         if (id != detalleInformeDto.IdDetInfo)
@@ -68,7 +68,7 @@ public class DetalleInformeController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try

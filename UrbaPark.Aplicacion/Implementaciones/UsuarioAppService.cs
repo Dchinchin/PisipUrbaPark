@@ -116,6 +116,22 @@ public class UsuarioAppService : IUsuarioAppService
     public async Task<bool> Authenticate(AuthenticateRequestDto request)
     {
         var user = await _usuariosRepositorio.GetByEmailAsync(request.Correo);
-        return user != null && _hashService.VerifyPassword(request.Contrasena, user.Contrasena);
+        return _hashService.VerifyPassword(request.Contrasena, user!.Contrasena);
+    }
+
+    public async Task ActivarUsuario(int id)
+    {
+        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
+        if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
+        usuario.Estado = "Activo";
+        await _usuariosRepositorio.UpdateAsync(usuario);
+    }
+
+    public async Task DesactivarUsuario(int id)
+    {
+        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
+        if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
+        usuario.Estado = "Inactivo";
+        await _usuariosRepositorio.UpdateAsync(usuario);
     }
 }

@@ -18,7 +18,7 @@ public partial class Mantenimiento
 
     public string? Observaciones { get; set; }
 
-    public virtual Parquadero? IdParqueaderoNavigation { get; set; }
+    public virtual Parqueadero? IdParqueaderoNavigation { get; set; }
 
     public virtual TipoMantenimiento? IdTipomantenimientoNavigation { get; set; }
 

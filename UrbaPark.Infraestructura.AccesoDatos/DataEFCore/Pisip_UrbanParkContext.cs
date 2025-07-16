@@ -22,7 +22,7 @@ public partial class Pisip_UrbanParkContext : DbContext
     public virtual DbSet<Detalle_Informe> Detalle_Informe { get; set; }
     public virtual DbSet<Informes_Encabezado> Informes_Encabezado { get; set; }
     public virtual DbSet<Mantenimiento> Mantenimientos { get; set; }
-    public virtual DbSet<Parquadero> Parquadero { get; set; }
+    public virtual DbSet<Parqueadero> Parqueadero { get; set; }
     public virtual DbSet<Roles> Roles { get; set; }
     public virtual DbSet<TipoMantenimiento> TipoMantenimiento { get; set; }
     public virtual DbSet<Usuarios> Usuarios { get; set; }
@@ -122,7 +122,7 @@ public partial class Pisip_UrbanParkContext : DbContext
             entity.Property(e => e.Descripcion).HasColumnName("descripcion").HasMaxLength(1000).IsUnicode(false);
         });
 
-        modelBuilder.Entity<Parquadero>(entity =>
+        modelBuilder.Entity<Parqueadero>(entity =>
         {
             entity.HasKey(e => e.IdParqueadero).HasName("PK__Parquade__0A2A3B21893B63E6");
 

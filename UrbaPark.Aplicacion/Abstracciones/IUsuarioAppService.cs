@@ -12,4 +12,6 @@ public interface IUsuarioAppService
     Task UpdateUsuarioAsync(UpdateUsuarioDto usuarioDto);
     Task DeleteUsuarioAsync(int id);
     Task<bool> Authenticate(AuthenticateRequestDto request);
+    Task ActivarUsuario(int id);
+    Task DesactivarUsuario(int id);
 }

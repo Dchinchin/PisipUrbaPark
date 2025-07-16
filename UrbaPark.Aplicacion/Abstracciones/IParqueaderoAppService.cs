@@ -10,4 +10,6 @@ public interface IParqueaderoAppService
     Task<ParqueaderoDto> CreateParqueaderoAsync(CreateParqueaderoDto parqueaderoDto);
     Task UpdateParqueaderoAsync(UpdateParqueaderoDto parqueaderoDto);
     Task DeleteParqueaderoAsync(int id);
+    Task ActivarParqueadero(int id);
+    Task DesactivarParqueadero(int id);
 }

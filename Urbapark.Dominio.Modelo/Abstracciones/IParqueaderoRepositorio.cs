@@ -2,7 +2,7 @@
 
 namespace UrbaPark.Dominio.Modelo.Abstracciones
 {
-    public interface IParqueaderoRepositorio: IRepositorio<Parquadero>
+    public interface IParqueaderoRepositorio: IRepositorio<Parqueadero>
     {
     }
 }

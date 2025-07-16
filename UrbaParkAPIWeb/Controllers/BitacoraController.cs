@@ -44,7 +44,7 @@ public class BitacoraController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdBitacora.IdBitacora }, createdBitacora);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateBitacoraDto bitacoraDto)
     {
         if (id != bitacoraDto.IdBitacora)
@@ -68,7 +68,7 @@ public class BitacoraController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try
