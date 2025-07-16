@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UrbaPark.Dominio.Modelo.Abstracciones;
-using UrbaPark.Infraestructura.;
 
 
 
@@ -23,7 +22,7 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             _dbContext = dBContext;
             _dbSet = dBContext.Set<T>();
         }
-        public async Task AddAsync(T TEntity)
+        public virtual async Task AddAsync(T TEntity)
         {
             try
             {
@@ -41,8 +40,11 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             try
             {
                 var entity = await GetByIdAsync(id);
-                _dbSet.Remove(entity);
-                await _dbContext.SaveChangesAsync();
+                if (entity != null)
+                {
+                    _dbSet.Remove(entity);
+                    await _dbContext.SaveChangesAsync();
+                }
             }
             catch (Exception e)
             {
@@ -50,13 +52,16 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null)
         {
             try
             {
-
-                return await _dbSet.ToListAsync();
-
+                IQueryable<T> query = _dbSet;
+                if (filter != null)
+                {
+                    query = query.Where(filter);
+                }
+                return await query.ToListAsync();
             }
             catch (Exception e)
             {
@@ -64,11 +69,11 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id)
         {
             try
             {
-                return await _dbSet.FindAsync();
+                return await _dbSet.FindAsync(id);
             }
             catch (Exception e)
             {
@@ -76,7 +81,7 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task UpdateAsync(T Entity)
+        public virtual async Task UpdateAsync(T Entity)
         {
             try
             {

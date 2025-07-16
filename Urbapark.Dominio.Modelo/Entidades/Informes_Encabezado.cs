@@ -3,17 +3,20 @@
 using System;
 using System.Collections.Generic;
 
-namespace UrbaPark.Infraestructura.AccesoDatos;
+
+namespace UrbaPark.Dominio.Modelo.Entidades;
 
 public partial class Informes_Encabezado
 {
-    public int id_informe { get; set; }
+    public int IdInforme { get; set; }
 
-    public int? id_cronogramas { get; set; }
+    public int? IdMantenimiento { get; set; }
 
-    public DateTime? fecha { get; set; }
+    public DateTime? Fecha { get; set; }
 
     public virtual ICollection<Detalle_Informe> Detalle_Informe { get; set; } = new List<Detalle_Informe>();
 
-    public virtual Cronogramas id_cronogramasNavigation { get; set; }
+    public virtual Mantenimiento IdMantenimientoNavigation { get; set; }
+
+    public virtual ICollection<Bitacora> Bitacoras { get; set; } = new List<Bitacora>();
 }

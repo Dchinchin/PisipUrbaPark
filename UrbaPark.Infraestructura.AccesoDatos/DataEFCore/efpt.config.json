@@ -18,10 +18,7 @@
          "Name": "[dbo].[Bitacora]",
          "ObjectType": 0
       },
-      {
-         "Name": "[dbo].[Cronogramas]",
-         "ObjectType": 0
-      },
+      
       {
          "Name": "[dbo].[Detalle_Informe]",
          "ObjectType": 0
