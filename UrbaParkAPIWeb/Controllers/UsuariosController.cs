@@ -81,4 +81,15 @@ public class UsuariosController : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpPost("authenticate")]
+    public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequestDto request)
+    {
+        var isAuthenticated = await _usuarioAppService.Authenticate(request);
+        if (isAuthenticated)
+        {
+            return Ok(true);
+        }
+        return Unauthorized(false);
+    }
 }

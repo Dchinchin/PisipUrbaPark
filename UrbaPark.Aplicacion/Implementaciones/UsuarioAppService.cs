@@ -112,4 +112,10 @@ public class UsuarioAppService : IUsuarioAppService
     {
         await _usuariosRepositorio.DeleteAsync(id);
     }
+
+    public async Task<bool> Authenticate(AuthenticateRequestDto request)
+    {
+        var user = await _usuariosRepositorio.GetByEmailAsync(request.Correo);
+        return user != null && _hashService.VerifyPassword(request.Contrasena, user.Contrasena);
+    }
 }
