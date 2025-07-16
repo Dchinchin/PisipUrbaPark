@@ -11,4 +11,6 @@ public interface IParqueaderoAppService
     Task<ParqueaderoDto> UpdateParqueaderoAsync(int id, UpdateParqueaderoDto parqueaderoDto);
     
     Task DeleteParqueaderoAsync(int id);
+    Task ActivarParqueadero(int id);
+    Task DesactivarParqueadero(int id);
 }
