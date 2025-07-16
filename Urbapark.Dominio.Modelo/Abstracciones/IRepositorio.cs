@@ -11,7 +11,7 @@ namespace UrbaPark.Dominio.Modelo.Abstracciones
         Task AddAsync(T TEntity); //insertar
         Task UpdateAsync(T Entity);//actualizar
         Task DeleteAsync(int id);//eliminar por ID
-        Task<IEnumerable<T>> GetAllAsync();//listar todo
-        Task<T> GetByIdAsync(int id);//buscar por ID
+        Task<IEnumerable<T>> GetAllAsync(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null);//listar todo
+        Task<T?> GetByIdAsync(int id);//buscar por ID
     }
 }

@@ -3,17 +3,17 @@
 using System;
 using System.Collections.Generic;
 
-namespace UrbaPark.Infraestructura.AccesoDatos;
+namespace UrbaPark.Dominio.Modelo.Entidades;
 
 public partial class Parquadero
 {
-    public int id_parqueadero { get; set; }
+    public int IdParqueadero { get; set; }
 
-    public string nombre { get; set; }
+    public string Nombre { get; set; }
 
-    public string direccion { get; set; }
+    public string Direccion { get; set; }
 
-    public string estado { get; set; }
+    public string Estado { get; set; }
 
-    public virtual ICollection<Cronogramas> Cronogramas { get; set; } = new List<Cronogramas>();
+    public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();
 }

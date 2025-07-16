@@ -2,8 +2,9 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using UrbaPark.Dominio.Modelo.Entidades;
 
-namespace UrbaPark.Infraestructura.AccesoDatos;
+namespace UrbaPark.Dominio.Modelo.Entidades;
 
 public partial class Roles
 {

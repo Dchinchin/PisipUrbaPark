@@ -3,25 +3,28 @@
 using System;
 using System.Collections.Generic;
 
-namespace UrbaPark.Infraestructura.AccesoDatos;
+
+namespace UrbaPark.Dominio.Modelo.Entidades;
 
 public partial class Usuarios
 {
-    public int id_usuario { get; set; }
+    public int IdUsuario { get; set; }
 
-    public int? id_rol { get; set; }
+    public int? IdRol { get; set; }
 
-    public string nombre { get; set; }
+    public string Nombre { get; set; }
 
-    public string apellido { get; set; }
+    public string Apellido { get; set; }
 
-    public string correo { get; set; }
+    public string Correo { get; set; }
 
-    public string estado { get; set; }
+    public string Estado { get; set; }
 
-    public string cedula { get; set; }
+    public string Cedula { get; set; }
+    
+    public string Contrasena { get; set; }
 
-    public virtual ICollection<Cronogramas> Cronogramas { get; set; } = new List<Cronogramas>();
+    public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();
 
-    public virtual Roles id_rolNavigation { get; set; }
+    public virtual Roles IdRolNavigation { get; set; }
 }
