@@ -3,7 +3,7 @@ using UrbaPark.Dominio.Modelo.Entidades;
 
 namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
 {
-    public class ParqueaderoRepositorioImpl : RepositorioImpl<Parquadero>, IParqueaderoRepositorio
+    public class ParqueaderoRepositorioImpl : RepositorioImpl<Parqueadero>, IParqueaderoRepositorio
     {
         private readonly Pisip_UrbanParkContext _UrbanParkContext;
 

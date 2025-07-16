@@ -1,4 +1,5 @@
-﻿using UrbaPark.Dominio.Modelo.Abstracciones;
+using Microsoft.EntityFrameworkCore;
+using UrbaPark.Dominio.Modelo.Abstracciones;
 using UrbaPark.Dominio.Modelo.Entidades;
 using UrbaPark.Dominio.Servicio.Abstracciones;
 
@@ -31,6 +32,11 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
                 entity.Contrasena = _hashService.HashPassword(entity.Contrasena);
             }
             await base.UpdateAsync(entity);
+        }
+
+        public async Task<Usuarios?> GetByEmailAsync(string email)
+        {
+            return await _UrbanParkContext.Set<Usuarios>().FirstOrDefaultAsync(u => u.Correo == email);
         }
     }
 }

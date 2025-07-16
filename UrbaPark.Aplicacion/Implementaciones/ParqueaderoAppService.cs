@@ -52,11 +52,11 @@ public class ParqueaderoAppService : IParqueaderoAppService
 
     public async Task<ParqueaderoDto> CreateParqueaderoAsync(CreateParqueaderoDto parqueaderoDto)
     {
-        var parqueadero = new Parquadero
+        var parqueadero = new Parqueadero
         {
             Nombre = parqueaderoDto.Nombre,
             Direccion = parqueaderoDto.Direccion,
-            Estado = parqueaderoDto.Estado
+            Estado = "Activo" // Default to active on creation
         };
 
         await _parqueaderoRepositorio.AddAsync(parqueadero);
@@ -77,7 +77,6 @@ public class ParqueaderoAppService : IParqueaderoAppService
 
         parqueadero.Nombre = parqueaderoDto.Nombre ?? parqueadero.Nombre;
         parqueadero.Direccion = parqueaderoDto.Direccion ?? parqueadero.Direccion;
-        parqueadero.Estado = parqueaderoDto.Estado ?? parqueadero.Estado;
 
         await _parqueaderoRepositorio.UpdateAsync(parqueadero);
     }
@@ -85,5 +84,21 @@ public class ParqueaderoAppService : IParqueaderoAppService
     public async Task DeleteParqueaderoAsync(int id)
     {
         await _parqueaderoRepositorio.DeleteAsync(id);
+    }
+
+    public async Task ActivarParqueadero(int id)
+    {
+        var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(id);
+        if (parqueadero == null) throw new KeyNotFoundException("Parqueadero no encontrado.");
+        parqueadero.Estado = "Activo";
+        await _parqueaderoRepositorio.UpdateAsync(parqueadero);
+    }
+
+    public async Task DesactivarParqueadero(int id)
+    {
+        var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(id);
+        if (parqueadero == null) throw new KeyNotFoundException("Parqueadero no encontrado.");
+        parqueadero.Estado = "Inactivo";
+        await _parqueaderoRepositorio.UpdateAsync(parqueadero);
     }
 }

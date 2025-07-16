@@ -22,7 +22,7 @@ public class TipoMantenimientoController : ControllerBase
         return Ok(tipos);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<TipoMantenimientoDto>> Get(int id)
     {
         var tipo = await _tipoMantenimientoAppService.GetTipoMantenimientoByIdAsync(id);
@@ -44,7 +44,7 @@ public class TipoMantenimientoController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdTipo.Id }, createdTipo);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTipoMantenimientoDto tipoMantenimientoDto)
     {
         if (id != tipoMantenimientoDto.Id)
@@ -68,7 +68,7 @@ public class TipoMantenimientoController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try

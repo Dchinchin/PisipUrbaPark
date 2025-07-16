@@ -13,6 +13,5 @@ public class UpdateParqueaderoDto
     [StringLength(80, ErrorMessage = "La dirección no puede exceder los 80 caracteres.")]
     public string? Direccion { get; set; }
 
-    [StringLength(80, ErrorMessage = "El estado no puede exceder los 80 caracteres.")]
-    public string? Estado { get; set; }
+    
 }

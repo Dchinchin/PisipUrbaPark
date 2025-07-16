@@ -22,7 +22,7 @@ public class MantenimientoController : ControllerBase
         return Ok(mantenimientos);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<MantenimientoDto>> Get(int id)
     {
         var mantenimiento = await _mantenimientoAppService.GetMantenimientoByIdAsync(id);
@@ -44,7 +44,7 @@ public class MantenimientoController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = createdMantenimiento.IdMantenimiento }, createdMantenimiento);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateMantenimientoDto mantenimientoDto)
     {
         if (id != mantenimientoDto.IdMantenimiento)
@@ -68,7 +68,7 @@ public class MantenimientoController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try

@@ -12,7 +12,5 @@ public class CreateParqueaderoDto
     [StringLength(80, ErrorMessage = "La dirección no puede exceder los 80 caracteres.")]
     public required string Direccion { get; set; }
 
-    [Required(ErrorMessage = "El estado es obligatorio.")]
-    [StringLength(80, ErrorMessage = "El estado no puede exceder los 80 caracteres.")]
-    public required string Estado { get; set; }
+    
 }
