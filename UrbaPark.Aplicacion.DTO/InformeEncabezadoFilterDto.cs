@@ -10,5 +10,6 @@ namespace UrbaPark.Aplicacion.DTO
         public DateTime? FechaHasta { get; set; }
         public string? Titulo { get; set; }
         public string? Descripcion { get; set; }
+        public bool? EstaEliminado { get; set; }
     }
 }

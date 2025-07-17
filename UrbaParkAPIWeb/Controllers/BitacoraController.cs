@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.DTO;
+using Microsoft.AspNetCore.Http;
 
 namespace UrbaParkAPIWeb.Controllers;
 
@@ -34,23 +35,20 @@ public class BitacoraController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<BitacoraDto>> Post([FromBody] CreateBitacoraDto bitacoraDto)
+    public async Task<ActionResult<BitacoraDto>> Post([FromForm] CreateBitacoraDto bitacoraDto, IFormFile? imagenFile)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        var createdBitacora = await _bitacoraAppService.CreateBitacoraAsync(bitacoraDto);
+
+        var createdBitacora = await _bitacoraAppService.CreateBitacoraAsync(bitacoraDto, imagenFile);
         return CreatedAtAction(nameof(Get), new { id = createdBitacora.IdBitacora }, createdBitacora);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UpdateBitacoraDto bitacoraDto)
+    public async Task<IActionResult> Put(int id, [FromForm] UpdateBitacoraDto bitacoraDto, IFormFile? imagenFile)
     {
-        if (id != bitacoraDto.IdBitacora)
-        {
-            return BadRequest("El ID de la bitácora en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
 
         if (!ModelState.IsValid)
         {
@@ -59,8 +57,8 @@ public class BitacoraController : ControllerBase
 
         try
         {
-            await _bitacoraAppService.UpdateBitacoraAsync(bitacoraDto);
-            return NoContent();
+            var bitacora = await _bitacoraAppService.UpdateBitacoraAsync(id, bitacoraDto, imagenFile);
+            return Ok(bitacora);
         }
         catch (KeyNotFoundException)
         {
@@ -74,7 +72,7 @@ public class BitacoraController : ControllerBase
         try
         {
             await _bitacoraAppService.DeleteBitacoraAsync(id);
-            return NoContent();
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

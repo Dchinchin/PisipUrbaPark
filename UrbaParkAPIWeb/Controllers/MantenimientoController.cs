@@ -47,10 +47,6 @@ public class MantenimientoController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateMantenimientoDto mantenimientoDto)
     {
-        if (id != mantenimientoDto.IdMantenimiento)
-        {
-            return BadRequest("El ID del mantenimiento en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
 
         if (!ModelState.IsValid)
         {
@@ -59,8 +55,8 @@ public class MantenimientoController : ControllerBase
 
         try
         {
-            await _mantenimientoAppService.UpdateMantenimientoAsync(mantenimientoDto);
-            return NoContent();
+            var mantenimiento = await _mantenimientoAppService.UpdateMantenimientoAsync(id, mantenimientoDto);
+            return Ok(mantenimiento);
         }
         catch (KeyNotFoundException)
         {
@@ -74,7 +70,7 @@ public class MantenimientoController : ControllerBase
         try
         {
             await _mantenimientoAppService.DeleteMantenimientoAsync(id);
-            return NoContent();
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

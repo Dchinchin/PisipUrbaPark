@@ -9,9 +9,9 @@ public interface IUsuarioAppService
     Task<IEnumerable<UsuarioDto>> GetFilteredUsuariosAsync(UsuarioFilterDto filter);
     Task<UsuarioDto?> GetUsuarioByIdAsync(int id);
     Task<UsuarioDto> CreateUsuarioAsync(CreateUsuarioDto usuarioDto);
-    Task UpdateUsuarioAsync(UpdateUsuarioDto usuarioDto);
-    Task DeleteUsuarioAsync(int id);
+    Task<UsuarioDto> UpdateUsuarioAsync(int id, UpdateUsuarioDto usuarioDto);
     Task<bool> Authenticate(AuthenticateRequestDto request);
-    Task ActivarUsuario(int id);
-    Task DesactivarUsuario(int id);
+    
+    Task DeleteUsuarioAsync(int id);
+    int GetCurrentUserId();
 }

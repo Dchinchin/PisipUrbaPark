@@ -47,10 +47,6 @@ public class RolesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateRolDto rolDto)
     {
-        if (id != rolDto.IdRol)
-        {
-            return BadRequest("El ID del rol en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
 
         if (!ModelState.IsValid)
         {
@@ -59,8 +55,8 @@ public class RolesController : ControllerBase
 
         try
         {
-            await _rolAppService.UpdateRolAsync(rolDto);
-            return NoContent();
+            var rol = await _rolAppService.UpdateRolAsync(id, rolDto);
+            return Ok(rol);
         }
         catch (KeyNotFoundException)
         {
@@ -74,7 +70,7 @@ public class RolesController : ControllerBase
         try
         {
             await _rolAppService.DeleteRolAsync(id);
-            return NoContent();
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

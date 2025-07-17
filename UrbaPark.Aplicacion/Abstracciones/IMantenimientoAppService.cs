@@ -8,6 +8,6 @@ public interface IMantenimientoAppService
     Task<IEnumerable<MantenimientoDto>> GetFilteredMantenimientosAsync(MantenimientoFilterDto filter);
     Task<MantenimientoDto?> GetMantenimientoByIdAsync(int id);
     Task<MantenimientoDto> CreateMantenimientoAsync(CreateMantenimientoDto mantenimientoDto);
-    Task UpdateMantenimientoAsync(UpdateMantenimientoDto mantenimientoDto);
+    Task<MantenimientoDto> UpdateMantenimientoAsync(int id, UpdateMantenimientoDto mantenimientoDto);
     Task DeleteMantenimientoAsync(int id);
 }

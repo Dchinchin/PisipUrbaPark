@@ -47,11 +47,6 @@ public class InformesEncabezadoController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateInformeEncabezadoDto informeEncabezadoDto)
     {
-        if (id != informeEncabezadoDto.IdInforme)
-        {
-            return BadRequest("El ID del informe en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -59,8 +54,8 @@ public class InformesEncabezadoController : ControllerBase
 
         try
         {
-            await _informeEncabezadoAppService.UpdateInformeEncabezadoAsync(informeEncabezadoDto);
-            return NoContent();
+            var informe = await _informeEncabezadoAppService.UpdateInformeEncabezadoAsync(id, informeEncabezadoDto);
+            return Ok(informe);
         }
         catch (KeyNotFoundException)
         {
@@ -74,7 +69,7 @@ public class InformesEncabezadoController : ControllerBase
         try
         {
             await _informeEncabezadoAppService.DeleteInformeEncabezadoAsync(id);
-            return NoContent();
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

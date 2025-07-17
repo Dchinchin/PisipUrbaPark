@@ -41,17 +41,12 @@ public class TipoMantenimientoController : ControllerBase
             return BadRequest(ModelState);
         }
         var createdTipo = await _tipoMantenimientoAppService.CreateTipoMantenimientoAsync(tipoMantenimientoDto);
-        return CreatedAtAction(nameof(Get), new { id = createdTipo.Id }, createdTipo);
+        return CreatedAtAction(nameof(Get), new { id = createdTipo.IdTipo }, createdTipo);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTipoMantenimientoDto tipoMantenimientoDto)
     {
-        if (id != tipoMantenimientoDto.Id)
-        {
-            return BadRequest("El ID del tipo de mantenimiento en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -59,8 +54,8 @@ public class TipoMantenimientoController : ControllerBase
 
         try
         {
-            await _tipoMantenimientoAppService.UpdateTipoMantenimientoAsync(tipoMantenimientoDto);
-            return NoContent();
+            var tipo = await _tipoMantenimientoAppService.UpdateTipoMantenimientoAsync(id, tipoMantenimientoDto);
+            return Ok(tipo);
         }
         catch (KeyNotFoundException)
         {
@@ -74,7 +69,7 @@ public class TipoMantenimientoController : ControllerBase
         try
         {
             await _tipoMantenimientoAppService.DeleteTipoMantenimientoAsync(id);
-            return NoContent();
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

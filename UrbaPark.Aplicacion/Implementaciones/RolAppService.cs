@@ -22,28 +22,33 @@ public class RolAppService : IRolAppService
     public async Task<IEnumerable<RolDto>> GetFilteredRolesAsync(RolFilterDto filter)
     {
         var roles = await _rolesRepositorio.GetAllAsync(r =>
-            (!filter.IdRol.HasValue || r.id_rol == filter.IdRol.Value) &&
-            (string.IsNullOrEmpty(filter.NombreRol) || r.nombre_rol.Contains(filter.NombreRol))
+            (!filter.IdRol.HasValue || r.IdRol == filter.IdRol.Value) &&
+            (string.IsNullOrEmpty(filter.NombreRol) || r.NombreRol.Contains(filter.NombreRol)) &&
+            (!filter.EstaEliminado.HasValue || r.EstaEliminado == filter.EstaEliminado.Value)
         );
 
         return roles.Select(r => new RolDto
         {
-            IdRol = r.id_rol,
-            NombreRol = r.nombre_rol,
-            Descripcion = r.descripcion
+            IdRol = r.IdRol,
+            NombreRol = r.NombreRol,
+            Descripcion = r.Descripcion,
+            FechaCreacion = r.FechaCreacion,
+            FechaModificacion = r.FechaModificacion
         });
     }
 
     public async Task<RolDto?> GetRolByIdAsync(int id)
     {
         var rol = await _rolesRepositorio.GetByIdAsync(id);
-        if (rol == null) return null;
+        if (rol == null || rol.EstaEliminado) return null;
 
         return new RolDto
         {
-            IdRol = rol.id_rol,
-            NombreRol = rol.nombre_rol,
-            Descripcion = rol.descripcion
+            IdRol = rol.IdRol,
+            NombreRol = rol.NombreRol,
+            Descripcion = rol.Descripcion,
+            FechaCreacion = rol.FechaCreacion,
+            FechaModificacion = rol.FechaModificacion
         };
     }
 
@@ -51,33 +56,51 @@ public class RolAppService : IRolAppService
     {
         var rol = new Roles
         {
-            nombre_rol = rolDto.NombreRol,
-            descripcion = rolDto.Descripcion
+            NombreRol = rolDto.NombreRol,
+            Descripcion = rolDto.Descripcion,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _rolesRepositorio.AddAsync(rol);
 
         return new RolDto
         {
-            IdRol = rol.id_rol,
-            NombreRol = rol.nombre_rol,
-            Descripcion = rol.descripcion
+            IdRol = rol.IdRol,
+            NombreRol = rol.NombreRol,
+            Descripcion = rol.Descripcion,
+            FechaCreacion = rol.FechaCreacion,
+            FechaModificacion = rol.FechaModificacion
         };
     }
 
-    public async Task UpdateRolAsync(UpdateRolDto rolDto)
+    public async Task<RolDto> UpdateRolAsync(int id, UpdateRolDto rolDto)
     {
-        var rol = await _rolesRepositorio.GetByIdAsync(rolDto.IdRol);
+        var rol = await _rolesRepositorio.GetByIdAsync(id);
         if (rol == null) throw new KeyNotFoundException("Rol no encontrado.");
 
-        rol.nombre_rol = rolDto.NombreRol ?? rol.nombre_rol;
-        rol.descripcion = rolDto.Descripcion ?? rol.descripcion;
+        rol.NombreRol = rolDto.NombreRol ?? rol.NombreRol;
+        rol.Descripcion = rolDto.Descripcion ?? rol.Descripcion;
+        rol.FechaModificacion = DateTime.Now;
 
         await _rolesRepositorio.UpdateAsync(rol);
+
+        return new RolDto
+        {
+            IdRol = rol.IdRol,
+            NombreRol = rol.NombreRol,
+            Descripcion = rol.Descripcion,
+            FechaCreacion = rol.FechaCreacion,
+            FechaModificacion = rol.FechaModificacion
+        };
     }
 
     public async Task DeleteRolAsync(int id)
     {
-        await _rolesRepositorio.DeleteAsync(id);
+        var rol = await _rolesRepositorio.GetByIdAsync(id);
+        if (rol == null) throw new KeyNotFoundException("Rol no encontrado.");
+
+        rol.EstaEliminado = true;
+        await _rolesRepositorio.UpdateAsync(rol);
     }
 }

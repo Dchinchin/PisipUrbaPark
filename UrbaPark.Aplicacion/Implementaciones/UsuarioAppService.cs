@@ -3,6 +3,7 @@ using UrbaPark.Aplicacion.DTO;
 using UrbaPark.Dominio.Modelo.Abstracciones;
 using UrbaPark.Dominio.Modelo.Entidades;
 using UrbaPark.Dominio.Servicio.Abstracciones;
+using Microsoft.AspNetCore.Http;
 
 namespace UrbaPark.Aplicacion.Implementaciones;
 
@@ -10,11 +11,13 @@ public class UsuarioAppService : IUsuarioAppService
 {
     private readonly IUsuariosRepositorio _usuariosRepositorio;
     private readonly IHashService _hashService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UsuarioAppService(IUsuariosRepositorio usuariosRepositorio, IHashService hashService)
+    public UsuarioAppService(IUsuariosRepositorio usuariosRepositorio, IHashService hashService, IHttpContextAccessor httpContextAccessor)
     {
         _usuariosRepositorio = usuariosRepositorio;
         _hashService = hashService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IEnumerable<UsuarioDto>> GetAllUsuariosAsync()
@@ -29,7 +32,8 @@ public class UsuarioAppService : IUsuarioAppService
             (!filter.IdRol.HasValue || u.IdRol == filter.IdRol.Value) &&
             (string.IsNullOrEmpty(filter.NombreUsuario) || (u.Nombre.Contains(filter.NombreUsuario) || u.Apellido.Contains(filter.NombreUsuario))) &&
             (string.IsNullOrEmpty(filter.CorreoElectronico) || u.Correo.Contains(filter.CorreoElectronico)) &&
-            (string.IsNullOrEmpty(filter.Estado) || u.Estado.Contains(filter.Estado))
+            (!filter.EstaEliminado.HasValue || filter.EstaEliminado.Value == u.EstaEliminado) &&
+            !u.EstaEliminado
         );
 
         return usuarios.Select(u => new UsuarioDto
@@ -39,15 +43,17 @@ public class UsuarioAppService : IUsuarioAppService
             Nombre = u.Nombre,
             Apellido = u.Apellido,
             Correo = u.Correo,
-            Estado = u.Estado,
-            Cedula = u.Cedula
+            EstaEliminado = u.EstaEliminado,
+            Cedula = u.Cedula,
+            FechaCreacion = u.FechaCreacion,
+            FechaModificacion = u.FechaModificacion
         });
     }
 
     public async Task<UsuarioDto?> GetUsuarioByIdAsync(int id)
     {
         var usuario = await _usuariosRepositorio.GetByIdAsync(id);
-        if (usuario == null) return null;
+        if (usuario == null || usuario.EstaEliminado) return null;
 
         return new UsuarioDto
         {
@@ -56,8 +62,10 @@ public class UsuarioAppService : IUsuarioAppService
             Nombre = usuario.Nombre,
             Apellido = usuario.Apellido,
             Correo = usuario.Correo,
-            Estado = usuario.Estado,
-            Cedula = usuario.Cedula
+            EstaEliminado = usuario.EstaEliminado,
+            Cedula = usuario.Cedula,
+            FechaCreacion = usuario.FechaCreacion,
+            FechaModificacion = usuario.FechaModificacion
         };
     }
 
@@ -69,9 +77,10 @@ public class UsuarioAppService : IUsuarioAppService
             Nombre = usuarioDto.Nombre,
             Apellido = usuarioDto.Apellido,
             Correo = usuarioDto.Correo,
-            Estado = usuarioDto.Estado,
             Cedula = usuarioDto.Cedula,
-            Contrasena = usuarioDto.Contrasena // The repository will hash this
+            Contrasena = usuarioDto.Contrasena,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _usuariosRepositorio.AddAsync(usuario);
@@ -83,55 +92,73 @@ public class UsuarioAppService : IUsuarioAppService
             Nombre = usuario.Nombre,
             Apellido = usuario.Apellido,
             Correo = usuario.Correo,
-            Estado = usuario.Estado,
-            Cedula = usuario.Cedula
+            EstaEliminado = usuario.EstaEliminado,
+            Cedula = usuario.Cedula,
+            FechaCreacion = usuario.FechaCreacion,
+            FechaModificacion = usuario.FechaModificacion
         };
     }
 
-    public async Task UpdateUsuarioAsync(UpdateUsuarioDto usuarioDto)
+    public async Task<UsuarioDto> UpdateUsuarioAsync(int id, UpdateUsuarioDto usuarioDto)
     {
-        var usuario = await _usuariosRepositorio.GetByIdAsync(usuarioDto.IdUsuario);
+        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
         if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
 
         usuario.IdRol = usuarioDto.IdRol ?? usuario.IdRol;
         usuario.Nombre = usuarioDto.Nombre ?? usuario.Nombre;
         usuario.Apellido = usuarioDto.Apellido ?? usuario.Apellido;
         usuario.Correo = usuarioDto.Correo ?? usuario.Correo;
-        usuario.Estado = usuarioDto.Estado ?? usuario.Estado;
+        usuario.EstaEliminado = usuarioDto.EstaEliminado ?? usuario.EstaEliminado;
         usuario.Cedula = usuarioDto.Cedula ?? usuario.Cedula;
+        usuario.FechaModificacion = DateTime.Now;
 
         if (!string.IsNullOrEmpty(usuarioDto.Contrasena))
         {
-            usuario.Contrasena = usuarioDto.Contrasena; // The repository will hash this
+            usuario.Contrasena = usuarioDto.Contrasena; 
         }
 
         await _usuariosRepositorio.UpdateAsync(usuario);
+
+        return new UsuarioDto
+        {
+            IdUsuario = usuario.IdUsuario,
+            IdRol = usuario.IdRol,
+            Nombre = usuario.Nombre,
+            Apellido = usuario.Apellido,
+            Correo = usuario.Correo,
+            EstaEliminado = usuario.EstaEliminado,
+            Cedula = usuario.Cedula,
+            FechaCreacion = usuario.FechaCreacion,
+            FechaModificacion = usuario.FechaModificacion
+        };
     }
 
     public async Task DeleteUsuarioAsync(int id)
     {
-        await _usuariosRepositorio.DeleteAsync(id);
+        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
+        if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
+
+        usuario.EstaEliminado = true;
+        await _usuariosRepositorio.UpdateAsync(usuario);
     }
 
     public async Task<bool> Authenticate(AuthenticateRequestDto request)
     {
         var user = await _usuariosRepositorio.GetByEmailAsync(request.Correo);
-        return _hashService.VerifyPassword(request.Contrasena, user!.Contrasena);
+        if (user == null || user.EstaEliminado) // Use EstaEliminado for logical delete check
+        {
+            return false;
+        }
+        return _hashService.VerifyPassword(request.Contrasena, user.Contrasena);
     }
 
-    public async Task ActivarUsuario(int id)
+    public int GetCurrentUserId()
     {
-        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
-        if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
-        usuario.Estado = "Activo";
-        await _usuariosRepositorio.UpdateAsync(usuario);
-    }
-
-    public async Task DesactivarUsuario(int id)
-    {
-        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
-        if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
-        usuario.Estado = "Inactivo";
-        await _usuariosRepositorio.UpdateAsync(usuario);
+        var userIdClaim = _httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == "id");
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+        {
+            return userId;
+        }
+        return 0;
     }
 }

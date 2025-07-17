@@ -9,14 +9,13 @@ namespace UrbaPark.Dominio.Modelo.Entidades;
 public partial class Informes_Encabezado
 {
     public int IdInforme { get; set; }
-
-    public int? IdMantenimiento { get; set; }
-
-    public DateTime? Fecha { get; set; }
+    public int IdUsuario { get; set; }
+    public string Titulo { get; set; }
+    public bool EstaEliminado { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaModificacion { get; set; }
 
     public virtual ICollection<Detalle_Informe> Detalle_Informe { get; set; } = new List<Detalle_Informe>();
-
-    public virtual Mantenimiento IdMantenimientoNavigation { get; set; }
-
-    public virtual ICollection<Bitacora> Bitacoras { get; set; } = new List<Bitacora>();
+    public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();
+    public virtual Usuarios IdUsuarioNavigation { get; set; }
 }

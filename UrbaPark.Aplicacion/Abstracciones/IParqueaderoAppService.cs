@@ -8,8 +8,7 @@ public interface IParqueaderoAppService
     Task<IEnumerable<ParqueaderoDto>> GetFilteredParqueaderosAsync(ParqueaderoFilterDto filter);
     Task<ParqueaderoDto?> GetParqueaderoByIdAsync(int id);
     Task<ParqueaderoDto> CreateParqueaderoAsync(CreateParqueaderoDto parqueaderoDto);
-    Task UpdateParqueaderoAsync(UpdateParqueaderoDto parqueaderoDto);
+    Task<ParqueaderoDto> UpdateParqueaderoAsync(int id, UpdateParqueaderoDto parqueaderoDto);
+    
     Task DeleteParqueaderoAsync(int id);
-    Task ActivarParqueadero(int id);
-    Task DesactivarParqueadero(int id);
 }

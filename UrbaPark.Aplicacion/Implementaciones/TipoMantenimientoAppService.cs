@@ -22,29 +22,35 @@ public class TipoMantenimientoAppService : ITipoMantenimientoAppService
     public async Task<IEnumerable<TipoMantenimientoDto>> GetFilteredTipoMantenimientosAsync(TipoMantenimientoFilterDto filter)
     {
         var tipos = await _tipoMantenimientoRepositorio.GetAllAsync(t =>
-            (!filter.IdTipoMantenimiento.HasValue || t.Id == filter.IdTipoMantenimiento.Value) &&
+            (!filter.IdTipoMantenimiento.HasValue || t.IdTipo == filter.IdTipoMantenimiento.Value) &&
             (string.IsNullOrEmpty(filter.Nombre) || (t.Nombre != null && t.Nombre.Contains(filter.Nombre))) &&
-            (string.IsNullOrEmpty(filter.Descripcion) || (t.Descripcion != null && t.Descripcion.Contains(filter.Descripcion)))
+            (string.IsNullOrEmpty(filter.Descripcion) || (t.Descripcion != null && t.Descripcion.Contains(filter.Descripcion))) &&
+            (!filter.EstaEliminado.HasValue || t.EstaEliminado == filter.EstaEliminado.Value)
         );
 
         return tipos.Select(t => new TipoMantenimientoDto
         {
-            Id = t.Id,
+            IdTipo = t.IdTipo,
             Nombre = t.Nombre,
-            Descripcion = t.Descripcion
+            Descripcion = t.Descripcion,
+            FechaCreacion = t.FechaCreacion,
+            FechaModificacion = t.FechaModificacion,
+            Estado = !t.EstaEliminado
         });
     }
 
     public async Task<TipoMantenimientoDto?> GetTipoMantenimientoByIdAsync(int id)
     {
         var tipo = await _tipoMantenimientoRepositorio.GetByIdAsync(id);
-        if (tipo == null) return null;
+        if (tipo == null || tipo.EstaEliminado) return null;
 
         return new TipoMantenimientoDto
         {
-            Id = tipo.Id,
+            IdTipo = tipo.IdTipo,
             Nombre = tipo.Nombre,
-            Descripcion = tipo.Descripcion
+            Descripcion = tipo.Descripcion,
+            FechaCreacion = tipo.FechaCreacion,
+            FechaModificacion = tipo.FechaModificacion
         };
     }
 
@@ -53,32 +59,50 @@ public class TipoMantenimientoAppService : ITipoMantenimientoAppService
         var tipo = new TipoMantenimiento
         {
             Nombre = tipoMantenimientoDto.Nombre,
-            Descripcion = tipoMantenimientoDto.Descripcion
+            Descripcion = tipoMantenimientoDto.Descripcion,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _tipoMantenimientoRepositorio.AddAsync(tipo);
 
         return new TipoMantenimientoDto
         {
-            Id = tipo.Id,
+            IdTipo = tipo.IdTipo,
             Nombre = tipo.Nombre,
-            Descripcion = tipo.Descripcion
+            Descripcion = tipo.Descripcion,
+            FechaCreacion = tipo.FechaCreacion,
+            FechaModificacion = tipo.FechaModificacion
         };
     }
 
-    public async Task UpdateTipoMantenimientoAsync(UpdateTipoMantenimientoDto tipoMantenimientoDto)
+    public async Task<TipoMantenimientoDto> UpdateTipoMantenimientoAsync(int id, UpdateTipoMantenimientoDto tipoMantenimientoDto)
     {
-        var tipo = await _tipoMantenimientoRepositorio.GetByIdAsync(tipoMantenimientoDto.Id);
+        var tipo = await _tipoMantenimientoRepositorio.GetByIdAsync(id);
         if (tipo == null) throw new KeyNotFoundException("Tipo de Mantenimiento no encontrado.");
 
         tipo.Nombre = tipoMantenimientoDto.Nombre ?? tipo.Nombre;
         tipo.Descripcion = tipoMantenimientoDto.Descripcion ?? tipo.Descripcion;
+        tipo.FechaModificacion = DateTime.Now;
 
         await _tipoMantenimientoRepositorio.UpdateAsync(tipo);
+
+        return new TipoMantenimientoDto
+        {
+            IdTipo = tipo.IdTipo,
+            Nombre = tipo.Nombre,
+            Descripcion = tipo.Descripcion,
+            FechaCreacion = tipo.FechaCreacion,
+            FechaModificacion = tipo.FechaModificacion
+        };
     }
 
     public async Task DeleteTipoMantenimientoAsync(int id)
     {
-        await _tipoMantenimientoRepositorio.DeleteAsync(id);
+        var tipo = await _tipoMantenimientoRepositorio.GetByIdAsync(id);
+        if (tipo == null) throw new KeyNotFoundException("Tipo de Mantenimiento no encontrado.");
+
+        tipo.EstaEliminado = true;
+        await _tipoMantenimientoRepositorio.UpdateAsync(tipo);
     }
 }

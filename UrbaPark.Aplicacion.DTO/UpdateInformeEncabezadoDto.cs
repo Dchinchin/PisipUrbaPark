@@ -5,9 +5,6 @@ namespace UrbaPark.Aplicacion.DTO;
 
 public class UpdateInformeEncabezadoDto
 {
-    [Required(ErrorMessage = "El ID de informe es obligatorio para la actualización.")]
-    public int IdInforme { get; set; }
-
-    public int? IdMantenimiento { get; set; }
-    public DateTime? Fecha { get; set; }
+    [StringLength(100, ErrorMessage = "El título no puede exceder los 100 caracteres.")]
+    public string? Titulo { get; set; }
 }

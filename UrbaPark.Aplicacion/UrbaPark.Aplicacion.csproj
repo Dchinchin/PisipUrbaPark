@@ -16,6 +16,11 @@
     <ProjectReference Include="..\UrbaPark.Dominio.Servicio\UrbaPark.Dominio.Servicio.csproj" />
     <ProjectReference Include="..\UrbaPark.Infraestructura.AccesoDatos\UrbaPark.Infraestructura.AccesoDatos.csproj" />
     <ProjectReference Include="..\UrbaPark.Aplicacion.DTO\UrbaPark.Aplicacion.DTO.csproj" />
+    <ProjectReference Include="..\UrbaPark.Infraestrctura.CrossCuting\UrbaPark.Infraestrctura.CrossCuting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>

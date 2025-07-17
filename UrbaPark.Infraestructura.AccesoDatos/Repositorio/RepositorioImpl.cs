@@ -31,7 +31,7 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
             catch (Exception e)
             {
-                throw new Exception("Error: No se pudo insertar Datos " + e.Message);
+                throw new Exception("Error: No se pudo insertar Datos " + e);
             }
         }
 
@@ -52,11 +52,17 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null)
+        public async Task<IEnumerable<T>> GetAllAsync(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
         {
             try
             {
                 IQueryable<T> query = _dbSet;
+
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+
                 if (filter != null)
                 {
                     query = query.Where(filter);
@@ -69,11 +75,19 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
         {
             try
             {
-                return await _dbSet.FindAsync(id);
+                IQueryable<T> query = _dbSet;
+
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+
+                var keyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
+                return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, keyName) == id);
             }
             catch (Exception e)
             {

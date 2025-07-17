@@ -8,6 +8,6 @@ public interface IRolAppService
     Task<IEnumerable<RolDto>> GetFilteredRolesAsync(RolFilterDto filter);
     Task<RolDto?> GetRolByIdAsync(int id);
     Task<RolDto> CreateRolAsync(CreateRolDto rolDto);
-    Task UpdateRolAsync(UpdateRolDto rolDto);
+    Task<RolDto> UpdateRolAsync(int id, UpdateRolDto rolDto);
     Task DeleteRolAsync(int id);
 }

@@ -8,11 +8,12 @@ namespace UrbaPark.Dominio.Modelo.Entidades;
 
 public partial class Roles
 {
-    public int id_rol { get; set; }
-
-    public string nombre_rol { get; set; }
-
-    public string descripcion { get; set; }
+    public int IdRol { get; set; }
+    public string NombreRol { get; set; }
+    public string Descripcion { get; set; }
+    public bool EstaEliminado { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaModificacion { get; set; }
 
     public virtual ICollection<Usuarios> Usuarios { get; set; } = new List<Usuarios>();
 }

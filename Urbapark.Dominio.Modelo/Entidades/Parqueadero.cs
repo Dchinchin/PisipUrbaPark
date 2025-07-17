@@ -8,12 +8,11 @@ namespace UrbaPark.Dominio.Modelo.Entidades;
 public partial class Parqueadero
 {
     public int IdParqueadero { get; set; }
-
     public string Nombre { get; set; }
-
     public string Direccion { get; set; }
-
-    public string Estado { get; set; }
+    public bool EstaEliminado { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaModificacion { get; set; }
 
     public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();
 }
