@@ -13,11 +13,11 @@ public class InformeEncabezadoAppService : IInformeEncabezadoAppService
     private readonly IMantenimientoRepositorio _mantenimientoRepositorio;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public InformeEncabezadoAppService(IInfo_EncaRepositorio informeEncabezadoRepositorio, IMantenimientoRepositorio mantenimientoRepositorio)
+    public InformeEncabezadoAppService(IInfo_EncaRepositorio informeEncabezadoRepositorio, IMantenimientoRepositorio mantenimientoRepositorio, IHttpContextAccessor httpContextAccessor)
     {
         _informeEncabezadoRepositorio = informeEncabezadoRepositorio;
-        
         _mantenimientoRepositorio = mantenimientoRepositorio;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     
@@ -157,7 +157,7 @@ public class InformeEncabezadoAppService : IInformeEncabezadoAppService
     {
         if (string.IsNullOrEmpty(relativeUrl)) return null;
         var request = _httpContextAccessor.HttpContext?.Request;
-        if (request == null) return relativeUrl; // Fallback if HttpContext is not available
+        if (request == null) return relativeUrl;
         return $"{request.Scheme}://{request.Host}{relativeUrl}";
     }
 }
