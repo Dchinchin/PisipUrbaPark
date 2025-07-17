@@ -65,15 +65,22 @@ public class RolAppService : IRolAppService
         };
     }
 
-    public async Task UpdateRolAsync(UpdateRolDto rolDto)
+    public async Task<RolDto> UpdateRolAsync(int id, UpdateRolDto rolDto)
     {
-        var rol = await _rolesRepositorio.GetByIdAsync(rolDto.IdRol);
+        var rol = await _rolesRepositorio.GetByIdAsync(id);
         if (rol == null) throw new KeyNotFoundException("Rol no encontrado.");
 
         rol.nombre_rol = rolDto.NombreRol ?? rol.nombre_rol;
         rol.descripcion = rolDto.Descripcion ?? rol.descripcion;
 
         await _rolesRepositorio.UpdateAsync(rol);
+
+        return new RolDto
+        {
+            IdRol = rol.id_rol,
+            NombreRol = rol.nombre_rol,
+            Descripcion = rol.descripcion
+        };
     }
 
     public async Task DeleteRolAsync(int id)

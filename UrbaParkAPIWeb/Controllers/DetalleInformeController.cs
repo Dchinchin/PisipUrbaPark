@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.DTO;
+using Microsoft.AspNetCore.Http;
 
 namespace UrbaParkAPIWeb.Controllers;
 
@@ -34,24 +35,20 @@ public class DetalleInformeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<DetalleInformeDto>> Post([FromBody] CreateDetalleInformeDto detalleInformeDto)
+    public async Task<ActionResult<DetalleInformeDto>> Post([FromForm] CreateDetalleInformeDto detalleInformeDto, IFormFile? archivoFile)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        var createdDetalle = await _detalleInformeAppService.CreateDetalleInformeAsync(detalleInformeDto);
+
+        var createdDetalle = await _detalleInformeAppService.CreateDetalleInformeAsync(detalleInformeDto, archivoFile);
         return CreatedAtAction(nameof(Get), new { id = createdDetalle.IdDetInfo }, createdDetalle);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UpdateDetalleInformeDto detalleInformeDto)
+    public async Task<IActionResult> Put(int id, [FromForm] UpdateDetalleInformeDto detalleInformeDto, IFormFile? archivoFile)
     {
-        if (id != detalleInformeDto.IdDetInfo)
-        {
-            return BadRequest("El ID del detalle de informe en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -59,22 +56,8 @@ public class DetalleInformeController : ControllerBase
 
         try
         {
-            await _detalleInformeAppService.UpdateDetalleInformeAsync(detalleInformeDto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            await _detalleInformeAppService.DeleteDetalleInformeAsync(id);
-            return NoContent();
+            var detalle = await _detalleInformeAppService.UpdateDetalleInformeAsync(id, detalleInformeDto, archivoFile);
+            return Ok(detalle);
         }
         catch (KeyNotFoundException)
         {

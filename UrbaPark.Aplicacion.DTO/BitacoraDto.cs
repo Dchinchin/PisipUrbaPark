@@ -11,4 +11,5 @@ public class BitacoraDto
     public DateTime? FechaHora { get; set; }
     public string? Descripcion { get; set; }
     public string? ImagenUrl { get; set; }
+    
 }

@@ -8,6 +8,6 @@ public interface IInformeEncabezadoAppService
     Task<IEnumerable<InformeEncabezadoDto>> GetFilteredInformesEncabezadoAsync(InformeEncabezadoFilterDto filter);
     Task<InformeEncabezadoDto?> GetInformeEncabezadoByIdAsync(int id);
     Task<InformeEncabezadoDto> CreateInformeEncabezadoAsync(CreateInformeEncabezadoDto informeEncabezadoDto);
-    Task UpdateInformeEncabezadoAsync(UpdateInformeEncabezadoDto informeEncabezadoDto);
+    Task<InformeEncabezadoDto> UpdateInformeEncabezadoAsync(int id, UpdateInformeEncabezadoDto informeEncabezadoDto);
     Task DeleteInformeEncabezadoAsync(int id);
 }

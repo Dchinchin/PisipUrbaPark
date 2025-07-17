@@ -9,7 +9,7 @@ public partial class Bitacora
 {
     public int IdBitacora { get; set; }
 
-    public int IdInforme { get; set; }
+    public int? IdInforme { get; set; }
 
     public int IdMantenimiento { get; set; }
 

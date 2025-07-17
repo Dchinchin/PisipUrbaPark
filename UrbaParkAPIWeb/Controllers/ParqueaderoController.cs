@@ -47,10 +47,6 @@ public class ParqueaderoController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateParqueaderoDto parqueaderoDto)
     {
-        if (id != parqueaderoDto.IdParqueadero)
-        {
-            return BadRequest("El ID del parqueadero en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
 
         if (!ModelState.IsValid)
         {
@@ -59,22 +55,8 @@ public class ParqueaderoController : ControllerBase
 
         try
         {
-            await _parqueaderoAppService.UpdateParqueaderoAsync(parqueaderoDto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            await _parqueaderoAppService.DeleteParqueaderoAsync(id);
-            return NoContent();
+            var parqueadero = await _parqueaderoAppService.UpdateParqueaderoAsync(id, parqueaderoDto);
+            return Ok(parqueadero);
         }
         catch (KeyNotFoundException)
         {

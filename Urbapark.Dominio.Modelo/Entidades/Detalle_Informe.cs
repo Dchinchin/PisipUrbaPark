@@ -8,7 +8,7 @@ public partial class Detalle_Informe
 {
     public int id_detInfo { get; set; }
 
-    public int id_informe { get; set; }
+    public int? id_informe { get; set; }
 
     public string descripcion { get; set; }
 

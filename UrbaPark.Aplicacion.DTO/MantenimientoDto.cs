@@ -13,4 +13,5 @@ public class MantenimientoDto
     public DateTime? FechaCreacion { get; set; }
     public DateTime? FechaFin { get; set; }
     public string? Observaciones { get; set; }
+    public IEnumerable<InformeEncabezadoDto>? InformesEncabezado { get; set; }
 }

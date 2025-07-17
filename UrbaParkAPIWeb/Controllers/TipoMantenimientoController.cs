@@ -47,11 +47,6 @@ public class TipoMantenimientoController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTipoMantenimientoDto tipoMantenimientoDto)
     {
-        if (id != tipoMantenimientoDto.Id)
-        {
-            return BadRequest("El ID del tipo de mantenimiento en la URL no coincide con el ID del cuerpo de la solicitud.");
-        }
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -59,22 +54,8 @@ public class TipoMantenimientoController : ControllerBase
 
         try
         {
-            await _tipoMantenimientoAppService.UpdateTipoMantenimientoAsync(tipoMantenimientoDto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            await _tipoMantenimientoAppService.DeleteTipoMantenimientoAsync(id);
-            return NoContent();
+            var tipo = await _tipoMantenimientoAppService.UpdateTipoMantenimientoAsync(id, tipoMantenimientoDto);
+            return Ok(tipo);
         }
         catch (KeyNotFoundException)
         {

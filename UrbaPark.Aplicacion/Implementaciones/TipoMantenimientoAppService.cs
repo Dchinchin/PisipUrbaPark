@@ -66,15 +66,22 @@ public class TipoMantenimientoAppService : ITipoMantenimientoAppService
         };
     }
 
-    public async Task UpdateTipoMantenimientoAsync(UpdateTipoMantenimientoDto tipoMantenimientoDto)
+    public async Task<TipoMantenimientoDto> UpdateTipoMantenimientoAsync(int id, UpdateTipoMantenimientoDto tipoMantenimientoDto)
     {
-        var tipo = await _tipoMantenimientoRepositorio.GetByIdAsync(tipoMantenimientoDto.Id);
+        var tipo = await _tipoMantenimientoRepositorio.GetByIdAsync(id);
         if (tipo == null) throw new KeyNotFoundException("Tipo de Mantenimiento no encontrado.");
 
         tipo.Nombre = tipoMantenimientoDto.Nombre ?? tipo.Nombre;
         tipo.Descripcion = tipoMantenimientoDto.Descripcion ?? tipo.Descripcion;
 
         await _tipoMantenimientoRepositorio.UpdateAsync(tipo);
+
+        return new TipoMantenimientoDto
+        {
+            Id = tipo.Id,
+            Nombre = tipo.Nombre,
+            Descripcion = tipo.Descripcion
+        };
     }
 
     public async Task DeleteTipoMantenimientoAsync(int id)

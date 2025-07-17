@@ -69,9 +69,8 @@ public class UsuarioAppService : IUsuarioAppService
             Nombre = usuarioDto.Nombre,
             Apellido = usuarioDto.Apellido,
             Correo = usuarioDto.Correo,
-            Estado = usuarioDto.Estado,
             Cedula = usuarioDto.Cedula,
-            Contrasena = usuarioDto.Contrasena // The repository will hash this
+            Contrasena = usuarioDto.Contrasena
         };
 
         await _usuariosRepositorio.AddAsync(usuario);
@@ -88,9 +87,9 @@ public class UsuarioAppService : IUsuarioAppService
         };
     }
 
-    public async Task UpdateUsuarioAsync(UpdateUsuarioDto usuarioDto)
+    public async Task<UsuarioDto> UpdateUsuarioAsync(int id, UpdateUsuarioDto usuarioDto)
     {
-        var usuario = await _usuariosRepositorio.GetByIdAsync(usuarioDto.IdUsuario);
+        var usuario = await _usuariosRepositorio.GetByIdAsync(id);
         if (usuario == null) throw new KeyNotFoundException("Usuario no encontrado.");
 
         usuario.IdRol = usuarioDto.IdRol ?? usuario.IdRol;
@@ -102,10 +101,21 @@ public class UsuarioAppService : IUsuarioAppService
 
         if (!string.IsNullOrEmpty(usuarioDto.Contrasena))
         {
-            usuario.Contrasena = usuarioDto.Contrasena; // The repository will hash this
+            usuario.Contrasena = usuarioDto.Contrasena; 
         }
 
         await _usuariosRepositorio.UpdateAsync(usuario);
+
+        return new UsuarioDto
+        {
+            IdUsuario = usuario.IdUsuario,
+            IdRol = usuario.IdRol,
+            Nombre = usuario.Nombre,
+            Apellido = usuario.Apellido,
+            Correo = usuario.Correo,
+            Estado = usuario.Estado,
+            Cedula = usuario.Cedula
+        };
     }
 
     public async Task DeleteUsuarioAsync(int id)
@@ -116,7 +126,11 @@ public class UsuarioAppService : IUsuarioAppService
     public async Task<bool> Authenticate(AuthenticateRequestDto request)
     {
         var user = await _usuariosRepositorio.GetByEmailAsync(request.Correo);
-        return _hashService.VerifyPassword(request.Contrasena, user!.Contrasena);
+        if (user == null || user.Estado == "Inactivo")
+        {
+            return false;
+        }
+        return _hashService.VerifyPassword(request.Contrasena, user.Contrasena);
     }
 
     public async Task ActivarUsuario(int id)

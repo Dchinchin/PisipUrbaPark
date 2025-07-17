@@ -70,15 +70,23 @@ public class ParqueaderoAppService : IParqueaderoAppService
         };
     }
 
-    public async Task UpdateParqueaderoAsync(UpdateParqueaderoDto parqueaderoDto)
+    public async Task<ParqueaderoDto> UpdateParqueaderoAsync(int id, UpdateParqueaderoDto parqueaderoDto)
     {
-        var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(parqueaderoDto.IdParqueadero);
+        var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(id);
         if (parqueadero == null) throw new KeyNotFoundException("Parqueadero no encontrado.");
 
         parqueadero.Nombre = parqueaderoDto.Nombre ?? parqueadero.Nombre;
         parqueadero.Direccion = parqueaderoDto.Direccion ?? parqueadero.Direccion;
 
         await _parqueaderoRepositorio.UpdateAsync(parqueadero);
+
+        return new ParqueaderoDto
+        {
+            IdParqueadero = parqueadero.IdParqueadero,
+            Nombre = parqueadero.Nombre,
+            Direccion = parqueadero.Direccion,
+            Estado = parqueadero.Estado
+        };
     }
 
     public async Task DeleteParqueaderoAsync(int id)

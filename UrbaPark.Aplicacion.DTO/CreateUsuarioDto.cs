@@ -20,10 +20,6 @@ public class CreateUsuarioDto
     [StringLength(80, ErrorMessage = "El correo no puede exceder los 80 caracteres.")]
     public required string Correo { get; set; }
 
-    [Required(ErrorMessage = "El estado es obligatorio.")]
-    [StringLength(80, ErrorMessage = "El estado no puede exceder los 80 caracteres.")]
-    public required string Estado { get; set; }
-
     [Required(ErrorMessage = "La cédula es obligatoria.")]
     [StringLength(10, MinimumLength = 10, ErrorMessage = "La cédula debe tener 10 caracteres.")]
     public required string Cedula { get; set; }

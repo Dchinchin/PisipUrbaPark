@@ -2,16 +2,30 @@ using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.DTO;
 using UrbaPark.Dominio.Modelo.Abstracciones;
 using UrbaPark.Dominio.Modelo.Entidades;
+using UrbaPark.Dominio.Servicio.Abstracciones;
+using Microsoft.AspNetCore.Http;
 
 namespace UrbaPark.Aplicacion.Implementaciones;
 
 public class DetalleInformeAppService : IDetalleInformeAppService
 {
     private readonly IDet_InfoEncaRepositorio _detalleInformeRepositorio;
+    private readonly IFileStorageService _fileStorageService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DetalleInformeAppService(IDet_InfoEncaRepositorio detalleInformeRepositorio)
+    public DetalleInformeAppService(IDet_InfoEncaRepositorio detalleInformeRepositorio, IFileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor)
     {
         _detalleInformeRepositorio = detalleInformeRepositorio;
+        _fileStorageService = fileStorageService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    private string? GetAbsoluteUrl(string? relativeUrl)
+    {
+        if (string.IsNullOrEmpty(relativeUrl)) return null;
+        var request = _httpContextAccessor.HttpContext?.Request;
+        if (request == null) return relativeUrl; // Fallback if HttpContext is not available
+        return $"{request.Scheme}://{request.Host}{relativeUrl}";
     }
 
     public async Task<IEnumerable<DetalleInformeDto>> GetAllDetallesInformeAsync()
@@ -23,7 +37,6 @@ public class DetalleInformeAppService : IDetalleInformeAppService
     {
         var detalles = await _detalleInformeRepositorio.GetAllAsync(d =>
             (!filter.IdDetalleInforme.HasValue || d.id_detInfo == filter.IdDetalleInforme.Value) &&
-            (!filter.IdInforme.HasValue || d.id_informe == filter.IdInforme.Value) &&
             (string.IsNullOrEmpty(filter.Descripcion) || d.descripcion.Contains(filter.Descripcion))
         );
 
@@ -32,7 +45,7 @@ public class DetalleInformeAppService : IDetalleInformeAppService
             IdDetInfo = d.id_detInfo,
             IdInforme = d.id_informe,
             Descripcion = d.descripcion,
-            ArchivoUrl = d.archivo_url
+            ArchivoUrl = GetAbsoluteUrl(d.archivo_url)
         });
     }
 
@@ -46,17 +59,35 @@ public class DetalleInformeAppService : IDetalleInformeAppService
             IdDetInfo = detalle.id_detInfo,
             IdInforme = detalle.id_informe,
             Descripcion = detalle.descripcion,
-            ArchivoUrl = detalle.archivo_url
+            ArchivoUrl = GetAbsoluteUrl(detalle.archivo_url)
         };
     }
 
-    public async Task<DetalleInformeDto> CreateDetalleInformeAsync(CreateDetalleInformeDto detalleInformeDto)
+    public async Task<DetalleInformeDto> CreateDetalleInformeAsync(CreateDetalleInformeDto detalleInformeDto, IFormFile? archivoFile)
     {
+        string? fileUrl = null;
+        if (archivoFile != null)
+        {
+            var allowedExtensions = new[] { ".pdf", ".docx" };
+            var fileExtension = Path.GetExtension(archivoFile.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException("Tipo de archivo no permitido. Solo se permiten PDF y DOCX.");
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await archivoFile.CopyToAsync(memoryStream);
+                var archivoData = memoryStream.ToArray();
+                fileUrl = await _fileStorageService.SaveFileAsync(archivoData, archivoFile.FileName, "files");
+            }
+        }
+
         var detalle = new Detalle_Informe
         {
-            id_informe = detalleInformeDto.IdInforme,
+            id_informe = null,
             descripcion = detalleInformeDto.Descripcion,
-            archivo_url = detalleInformeDto.ArchivoUrl
+            archivo_url = fileUrl
         };
 
         await _detalleInformeRepositorio.AddAsync(detalle);
@@ -64,26 +95,63 @@ public class DetalleInformeAppService : IDetalleInformeAppService
         return new DetalleInformeDto
         {
             IdDetInfo = detalle.id_detInfo,
-            IdInforme = detalle.id_informe,
+            IdInforme = null,
             Descripcion = detalle.descripcion,
-            ArchivoUrl = detalle.archivo_url
+            ArchivoUrl = GetAbsoluteUrl(detalle.archivo_url)
         };
     }
 
-    public async Task UpdateDetalleInformeAsync(UpdateDetalleInformeDto detalleInformeDto)
+    public async Task<DetalleInformeDto> UpdateDetalleInformeAsync(int id, UpdateDetalleInformeDto detalleInformeDto, IFormFile? archivoFile)
     {
-        var detalle = await _detalleInformeRepositorio.GetByIdAsync(detalleInformeDto.IdDetInfo);
+        var detalle = await _detalleInformeRepositorio.GetByIdAsync(id);
         if (detalle == null) throw new KeyNotFoundException("Detalle de Informe no encontrado.");
 
-        detalle.id_informe = detalleInformeDto.IdInforme ?? detalle.id_informe;
         detalle.descripcion = detalleInformeDto.Descripcion ?? detalle.descripcion;
-        detalle.archivo_url = detalleInformeDto.ArchivoUrl ?? detalle.archivo_url;
+
+        if (archivoFile != null)
+        {
+            var allowedExtensions = new[] { ".pdf", ".docx" };
+            var fileExtension = Path.GetExtension(archivoFile.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException("Tipo de archivo no permitido. Solo se permiten PDF y DOCX.");
+            }
+
+            // Delete old file if exists
+            if (!string.IsNullOrEmpty(detalle.archivo_url))
+            {
+                _fileStorageService.DeleteFile(detalle.archivo_url, "files");
+            }
+            using (var memoryStream = new MemoryStream())
+            {
+                await archivoFile.CopyToAsync(memoryStream);
+                var archivoData = memoryStream.ToArray();
+                detalle.archivo_url = await _fileStorageService.SaveFileAsync(archivoData, archivoFile.FileName, "files");
+            }
+        }
+        
 
         await _detalleInformeRepositorio.UpdateAsync(detalle);
+
+        return new DetalleInformeDto
+        {
+            IdDetInfo = detalle.id_detInfo,
+            IdInforme = detalle.id_informe,
+            Descripcion = detalle.descripcion,
+            ArchivoUrl = GetAbsoluteUrl(detalle.archivo_url)
+        };
     }
 
     public async Task DeleteDetalleInformeAsync(int id)
     {
+        var detalle = await _detalleInformeRepositorio.GetByIdAsync(id);
+        if (detalle == null) throw new KeyNotFoundException("Detalle de Informe no encontrado.");
+
+        if (!string.IsNullOrEmpty(detalle.archivo_url))
+        {
+            _fileStorageService.DeleteFile(detalle.archivo_url, "files");
+        }
+
         await _detalleInformeRepositorio.DeleteAsync(id);
     }
 }

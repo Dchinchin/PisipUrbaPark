@@ -52,11 +52,17 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null)
+        public async Task<IEnumerable<T>> GetAllAsync(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
         {
             try
             {
                 IQueryable<T> query = _dbSet;
+
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+
                 if (filter != null)
                 {
                     query = query.Where(filter);
@@ -69,11 +75,18 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
         {
             try
             {
-                return await _dbSet.FindAsync(id);
+                IQueryable<T> query = _dbSet;
+
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+
+                return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id" + typeof(T).Name) == id);
             }
             catch (Exception e)
             {

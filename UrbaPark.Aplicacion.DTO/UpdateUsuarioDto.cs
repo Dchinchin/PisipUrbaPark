@@ -4,9 +4,6 @@ namespace UrbaPark.Aplicacion.DTO;
 
 public class UpdateUsuarioDto
 {
-    [Required(ErrorMessage = "El ID de usuario es obligatorio para la actualización.")]
-    public int IdUsuario { get; set; }
-
     public int? IdRol { get; set; }
 
     [StringLength(80, ErrorMessage = "El nombre no puede exceder los 80 caracteres.")]

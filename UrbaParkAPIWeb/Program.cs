@@ -9,11 +9,14 @@ using UrbaPark.Aplicacion.Implementaciones;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseWebRoot("wwwroot");
+
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen();
 
 // Configure DbContext
@@ -34,10 +37,12 @@ builder.Services.AddScoped<IMantenimientoRepositorio, MantenimientoRepositorioIm
 builder.Services.AddScoped<IMantenimientoAppService, MantenimientoAppService>();
 builder.Services.AddScoped<IInfo_EncaRepositorio, Info_EncaRepositorioImpl>();
 builder.Services.AddScoped<IInformeEncabezadoAppService, InformeEncabezadoAppService>();
+
 builder.Services.AddScoped<IBitacoraRepositorio, BitacoraRepositorioImpl>();
 builder.Services.AddScoped<IBitacoraAppService, BitacoraAppService>();
 builder.Services.AddScoped<IDet_InfoEncaRepositorio, Det_InfoEncaRepositorioImpl>();
 builder.Services.AddScoped<IDetalleInformeAppService, DetalleInformeAppService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
 var app = builder.Build();
 
@@ -47,6 +52,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
