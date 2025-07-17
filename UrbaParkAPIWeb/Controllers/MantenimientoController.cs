@@ -63,4 +63,18 @@ public class MantenimientoController : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _mantenimientoAppService.DeleteMantenimientoAsync(id);
+            return Ok(true);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }

@@ -75,26 +75,14 @@ public class UsuariosController : ControllerBase
         return Unauthorized(false);
     }
 
-    [HttpPut("{id:int}/activar")]
-    public async Task<IActionResult> ActivarUsuario(int id)
-    {
-        try
-        {
-            await _usuarioAppService.ActivarUsuario(id);
-            return Ok(true);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
+    
 
-    [HttpPut("{id:int}/desactivar")]
-    public async Task<IActionResult> DesactivarUsuario(int id)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            await _usuarioAppService.DesactivarUsuario(id);
+            await _usuarioAppService.DeleteUsuarioAsync(id);
             return Ok(true);
         }
         catch (KeyNotFoundException)

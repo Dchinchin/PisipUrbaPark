@@ -41,7 +41,7 @@ public class TipoMantenimientoController : ControllerBase
             return BadRequest(ModelState);
         }
         var createdTipo = await _tipoMantenimientoAppService.CreateTipoMantenimientoAsync(tipoMantenimientoDto);
-        return CreatedAtAction(nameof(Get), new { id = createdTipo.Id }, createdTipo);
+        return CreatedAtAction(nameof(Get), new { id = createdTipo.IdTipo }, createdTipo);
     }
 
     [HttpPut("{id:int}")]
@@ -56,6 +56,20 @@ public class TipoMantenimientoController : ControllerBase
         {
             var tipo = await _tipoMantenimientoAppService.UpdateTipoMantenimientoAsync(id, tipoMantenimientoDto);
             return Ok(tipo);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _tipoMantenimientoAppService.DeleteTipoMantenimientoAsync(id);
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

@@ -5,8 +5,6 @@ namespace UrbaPark.Aplicacion.DTO;
 
 public class UpdateBitacoraDto
 {
-
-    public int? IdInforme { get; set; }
     public int? IdMantenimiento { get; set; }
     public DateTime? FechaHora { get; set; }
 

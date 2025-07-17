@@ -62,4 +62,18 @@ public class InformesEncabezadoController : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _informeEncabezadoAppService.DeleteInformeEncabezadoAsync(id);
+            return Ok(true);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }

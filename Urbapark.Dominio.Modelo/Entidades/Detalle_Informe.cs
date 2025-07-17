@@ -6,13 +6,13 @@ namespace UrbaPark.Dominio.Modelo.Entidades;
 
 public partial class Detalle_Informe
 {
-    public int id_detInfo { get; set; }
+    public int IdDetInfo { get; set; }
+    public int? IdInforme { get; set; }
+    public string Descripcion { get; set; }
+    public string ArchivoUrl { get; set; }
+    public bool EstaEliminado { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaModificacion { get; set; }
 
-    public int? id_informe { get; set; }
-
-    public string descripcion { get; set; }
-
-    public string archivo_url { get; set; }
-
-    public virtual Informes_Encabezado id_informeNavigation { get; set; }
+    public virtual Informes_Encabezado IdInformeNavigation { get; set; }
 }

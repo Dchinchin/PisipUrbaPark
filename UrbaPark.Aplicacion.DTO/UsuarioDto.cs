@@ -10,6 +10,8 @@ public class UsuarioDto
     public string? Nombre { get; set; }
     public string? Apellido { get; set; }
     public string? Correo { get; set; }
-    public string? Estado { get; set; }
     public string? Cedula { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaModificacion { get; set; }
+    public bool EstaEliminado { get; set; }
 }

@@ -6,6 +6,6 @@ namespace UrbaPark.Aplicacion.DTO
         public int? IdRol { get; set; }
         public string? NombreUsuario { get; set; }
         public string? CorreoElectronico { get; set; }
-        public string? Estado { get; set; }
+        public bool? EstaEliminado { get; set; }
     }
 }

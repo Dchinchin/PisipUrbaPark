@@ -64,9 +64,19 @@ public class BitacoraController : ControllerBase
         {
             return NotFound();
         }
-        catch (InvalidOperationException ex)
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
         {
-            return BadRequest(ex.Message);
+            await _bitacoraAppService.DeleteBitacoraAsync(id);
+            return Ok(true);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
         }
     }
 }

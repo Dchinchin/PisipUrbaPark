@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+
 using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.DTO;
 using UrbaPark.Dominio.Modelo.Abstracciones;
@@ -10,7 +10,6 @@ public class MantenimientoAppService : IMantenimientoAppService
 {
     private readonly IMantenimientoRepositorio _mantenimientoRepositorio;
     private readonly IUsuarioAppService _usuarioAppService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public MantenimientoAppService(IMantenimientoRepositorio mantenimientoRepositorio,
         IUsuarioAppService usuarioAppService)
@@ -30,12 +29,14 @@ public class MantenimientoAppService : IMantenimientoAppService
             m =>
                 (!filter.IdMantenimiento.HasValue || m.IdMantenimiento == filter.IdMantenimiento.Value) &&
                 (!filter.IdParqueadero.HasValue || m.IdParqueadero == filter.IdParqueadero.Value) &&
-                (!filter.IdTipoMantenimiento.HasValue || m.IdTipomantenimiento == filter.IdTipoMantenimiento.Value) &&
+                (!filter.IdTipoMantenimiento.HasValue || m.IdTipoMantenimiento == filter.IdTipoMantenimiento.Value) &&
+                (!filter.IdInforme.HasValue || m.IdInforme == filter.IdInforme.Value) &&
                 (!filter.FechaDesde.HasValue || m.FechaInicio >= filter.FechaDesde.Value) &&
                 (!filter.FechaHasta.HasValue || m.FechaFin <= filter.FechaHasta.Value) &&
                 (string.IsNullOrEmpty(filter.Descripcion) ||
-                 (m.Observaciones != null && m.Observaciones.Contains(filter.Descripcion))),
-            m => m.Informes_Encabezados
+                 (m.Observaciones != null && m.Observaciones.Contains(filter.Descripcion))) &&
+                (!filter.EstaEliminado.HasValue || m.EstaEliminado == filter.EstaEliminado.Value),
+            m => m.Bitacoras
         );
 
         return mantenimientos.Select(m => new MantenimientoDto
@@ -43,104 +44,79 @@ public class MantenimientoAppService : IMantenimientoAppService
             IdMantenimiento = m.IdMantenimiento,
             IdUsuario = m.IdUsuario,
             IdParqueadero = m.IdParqueadero,
-            IdTipomantenimiento = m.IdTipomantenimiento,
+            IdTipoMantenimiento = m.IdTipoMantenimiento,
+            IdInforme = m.IdInforme,
             FechaInicio = m.FechaInicio,
             FechaCreacion = m.FechaCreacion,
             FechaFin = m.FechaFin,
             Observaciones = m.Observaciones,
-            InformesEncabezado = m.Informes_Encabezados?.Select(ie => new InformeEncabezadoDto
+            Estado = m.Estado,
+            EstaEliminado = m.EstaEliminado,
+            FechaModificacion = m.FechaModificacion,
+            Bitacoras = m.Bitacoras.Select(b => new BitacoraDto
             {
-                IdInforme = ie.IdInforme,
-                IdMantenimiento = ie.IdMantenimiento,
-                Fecha = ie.Fecha,
-                Detalles = ie.Detalle_Informe?.Select(di => new DetalleInformeDto
-                {
-                    IdDetInfo = di.id_detInfo,
-                    IdInforme = di.id_informe,
-                    Descripcion = di.descripcion,
-                    ArchivoUrl = GetAbsoluteUrl(di.archivo_url)
-                }).ToList(),
-                Bitacoras = ie.Bitacoras?.Select(b => new BitacoraDto
-                {
-                    IdBitacora = b.IdBitacora,
-                    IdInforme = b.IdInforme,
-                    IdMantenimiento = b.IdMantenimiento,
-                    FechaHora = b.FechaHora,
-                    Descripcion = b.Descripcion,
-                    ImagenUrl = GetAbsoluteUrl(b.ImagenUrl)
-                }).ToList()
+                IdBitacora = b.IdBitacora,
+                IdMantenimiento = b.IdMantenimiento,
+                FechaHora = b.FechaHora,
+                Descripcion = b.Descripcion,
+                ImagenUrl = b.ImagenUrl,
+                EstaEliminado = b.EstaEliminado,
+                FechaCreacion = b.FechaCreacion,
+                FechaModificacion = b.FechaModificacion
             }).ToList()
         });
     }
 
-    private string? GetAbsoluteUrl(string? relativeUrl)
-    {
-        if (string.IsNullOrEmpty(relativeUrl)) return null;
-        var request = _httpContextAccessor.HttpContext?.Request;
-        if (request == null) return relativeUrl; // Fallback if HttpContext is not available
-        return $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
+    
 
     public async Task<MantenimientoDto?> GetMantenimientoByIdAsync(int id)
     {
-        var mantenimiento = await _mantenimientoRepositorio.GetByIdAsync(id, m => m.Informes_Encabezados);
-        if (mantenimiento == null) return null;
+        var mantenimiento = await _mantenimientoRepositorio.GetByIdAsync(id, m => m.Bitacoras);
+        if (mantenimiento == null || mantenimiento.EstaEliminado == true) return null;
 
         return new MantenimientoDto
         {
             IdMantenimiento = mantenimiento.IdMantenimiento,
             IdUsuario = mantenimiento.IdUsuario,
             IdParqueadero = mantenimiento.IdParqueadero,
-            IdTipomantenimiento = mantenimiento.IdTipomantenimiento,
+            IdTipoMantenimiento = mantenimiento.IdTipoMantenimiento,
+            IdInforme = mantenimiento.IdInforme,
             FechaInicio = mantenimiento.FechaInicio,
             FechaCreacion = mantenimiento.FechaCreacion,
             FechaFin = mantenimiento.FechaFin,
             Observaciones = mantenimiento.Observaciones,
-            InformesEncabezado = mantenimiento.Informes_Encabezados?.Select(ie => new InformeEncabezadoDto
+            Estado = mantenimiento.Estado,
+            EstaEliminado = mantenimiento.EstaEliminado,
+            FechaModificacion = mantenimiento.FechaModificacion,
+            Bitacoras = mantenimiento.Bitacoras.Select(b => new BitacoraDto
             {
-                IdInforme = ie.IdInforme,
-                IdMantenimiento = ie.IdMantenimiento,
-                Fecha = ie.Fecha,
-                Detalles = ie.Detalle_Informe?.Select(di => new DetalleInformeDto
-                {
-                    IdDetInfo = di.id_detInfo,
-                    IdInforme = di.id_informe,
-                    Descripcion = di.descripcion,
-                    ArchivoUrl = GetAbsoluteUrl(di.archivo_url)
-                }).ToList(),
-                Bitacoras = ie.Bitacoras?.Select(b => new BitacoraDto
-                {
-                    IdBitacora = b.IdBitacora,
-                    IdInforme = b.IdInforme,
-                    IdMantenimiento = b.IdMantenimiento,
-                    FechaHora = b.FechaHora,
-                    Descripcion = b.Descripcion,
-                    ImagenUrl = GetAbsoluteUrl(b.ImagenUrl)
-                }).ToList()
+                IdBitacora = b.IdBitacora,
+                IdMantenimiento = b.IdMantenimiento,
+                FechaHora = b.FechaHora,
+                Descripcion = b.Descripcion,
+                ImagenUrl = b.ImagenUrl,
+                EstaEliminado = b.EstaEliminado,
+                FechaCreacion = b.FechaCreacion,
+                FechaModificacion = b.FechaModificacion
             }).ToList()
         };
     }
 
     public async Task<MantenimientoDto> CreateMantenimientoAsync(CreateMantenimientoDto mantenimientoDto)
     {
-        if (mantenimientoDto.IdUsuario != 0) // Assuming 0 means no user assigned, or adjust based on actual DTO
-        {
-            var usuario = await _usuarioAppService.GetUsuarioByIdAsync(mantenimientoDto.IdUsuario);
-            if (usuario == null || usuario.Estado == "Inactivo")
-            {
-                throw new InvalidOperationException("El usuario asignado no existe o no está activo.");
-            }
-        }
-
         var mantenimiento = new Mantenimiento
         {
+            
             IdUsuario = mantenimientoDto.IdUsuario,
             IdParqueadero = mantenimientoDto.IdParqueadero,
-            IdTipomantenimiento = mantenimientoDto.IdTipomantenimiento,
+            IdTipoMantenimiento = mantenimientoDto.IdTipoMantenimiento,
             FechaInicio = mantenimientoDto.FechaInicio,
-            FechaCreacion = mantenimientoDto.FechaCreacion,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now,
             FechaFin = mantenimientoDto.FechaFin,
-            Observaciones = mantenimientoDto.Observaciones
+            Observaciones = mantenimientoDto.Observaciones,
+            EstaEliminado = false,
+            Estado = "Pendiente"
         };
 
         await _mantenimientoRepositorio.AddAsync(mantenimiento);
@@ -150,35 +126,43 @@ public class MantenimientoAppService : IMantenimientoAppService
             IdMantenimiento = mantenimiento.IdMantenimiento,
             IdUsuario = mantenimiento.IdUsuario,
             IdParqueadero = mantenimiento.IdParqueadero,
-            IdTipomantenimiento = mantenimiento.IdTipomantenimiento,
+            IdTipoMantenimiento = mantenimiento.IdTipoMantenimiento,
+            IdInforme = mantenimiento.IdInforme,
             FechaInicio = mantenimiento.FechaInicio,
             FechaCreacion = mantenimiento.FechaCreacion,
             FechaFin = mantenimiento.FechaFin,
-            Observaciones = mantenimiento.Observaciones
+            Observaciones = mantenimiento.Observaciones,
+            Estado = mantenimiento.Estado,
+            EstaEliminado = mantenimiento.EstaEliminado,
+            FechaModificacion = mantenimiento.FechaModificacion,
+            Bitacoras = new List<BitacoraDto>()
         };
     }
 
     public async Task<MantenimientoDto> UpdateMantenimientoAsync(int id, UpdateMantenimientoDto mantenimientoDto)
     {
-        var mantenimiento = await _mantenimientoRepositorio.GetByIdAsync(id);
+        var mantenimiento = await _mantenimientoRepositorio.GetByIdAsync(id, m => m.Bitacoras);
         if (mantenimiento == null) throw new KeyNotFoundException("Mantenimiento no encontrado.");
 
-        if (mantenimientoDto.IdUsuario.HasValue)
-        {
-            var usuario = await _usuarioAppService.GetUsuarioByIdAsync(mantenimientoDto.IdUsuario.Value);
-            if (usuario == null || usuario.Estado == "Inactivo")
-            {
-                throw new InvalidOperationException("El usuario asignado no existe o no está activo.");
-            }
-        }
-
+        
         mantenimiento.IdUsuario = mantenimientoDto.IdUsuario ?? mantenimiento.IdUsuario;
         mantenimiento.IdParqueadero = mantenimientoDto.IdParqueadero ?? mantenimiento.IdParqueadero;
-        mantenimiento.IdTipomantenimiento = mantenimientoDto.IdTipomantenimiento ?? mantenimiento.IdTipomantenimiento;
+        mantenimiento.IdTipoMantenimiento = mantenimientoDto.IdTipoMantenimiento ?? mantenimiento.IdTipoMantenimiento;
+        mantenimiento.IdInforme = mantenimientoDto.IdInforme ?? mantenimiento.IdInforme;
         mantenimiento.FechaInicio = mantenimientoDto.FechaInicio ?? mantenimiento.FechaInicio;
-        mantenimiento.FechaCreacion = mantenimientoDto.FechaCreacion ?? mantenimiento.FechaCreacion;
         mantenimiento.FechaFin = mantenimientoDto.FechaFin ?? mantenimiento.FechaFin;
         mantenimiento.Observaciones = mantenimientoDto.Observaciones ?? mantenimiento.Observaciones;
+        mantenimiento.FechaModificacion = DateTime.Now;
+
+        if (!string.IsNullOrEmpty(mantenimientoDto.Estado))
+        {
+            if (mantenimientoDto.Estado != "Pendiente" && mantenimientoDto.Estado != "Terminado")
+            {
+                throw new ArgumentException("El estado solo puede ser 'Pendiente' o 'Terminado'.");
+            }
+
+            mantenimiento.Estado = mantenimientoDto.Estado;
+        }
 
         await _mantenimientoRepositorio.UpdateAsync(mantenimiento);
 
@@ -187,16 +171,35 @@ public class MantenimientoAppService : IMantenimientoAppService
             IdMantenimiento = mantenimiento.IdMantenimiento,
             IdUsuario = mantenimiento.IdUsuario,
             IdParqueadero = mantenimiento.IdParqueadero,
-            IdTipomantenimiento = mantenimiento.IdTipomantenimiento,
+            IdTipoMantenimiento = mantenimiento.IdTipoMantenimiento,
+            IdInforme = mantenimiento.IdInforme,
             FechaInicio = mantenimiento.FechaInicio,
             FechaCreacion = mantenimiento.FechaCreacion,
             FechaFin = mantenimiento.FechaFin,
-            Observaciones = mantenimiento.Observaciones
+            Observaciones = mantenimiento.Observaciones,
+            Estado = mantenimiento.Estado,
+            EstaEliminado = mantenimiento.EstaEliminado,
+            FechaModificacion = mantenimiento.FechaModificacion,
+            Bitacoras = mantenimiento.Bitacoras.Select(b => new BitacoraDto
+            {
+                IdBitacora = b.IdBitacora,
+                IdMantenimiento = b.IdMantenimiento,
+                FechaHora = b.FechaHora,
+                Descripcion = b.Descripcion,
+                ImagenUrl = b.ImagenUrl,
+                EstaEliminado = b.EstaEliminado,
+                FechaCreacion = b.FechaCreacion,
+                FechaModificacion = b.FechaModificacion
+            }).ToList()
         };
     }
 
     public async Task DeleteMantenimientoAsync(int id)
     {
-        await _mantenimientoRepositorio.DeleteAsync(id);
+        var mantenimiento = await _mantenimientoRepositorio.GetByIdAsync(id);
+        if (mantenimiento == null) throw new KeyNotFoundException("Mantenimiento no encontrado.");
+
+        mantenimiento.EstaEliminado = true;
+        await _mantenimientoRepositorio.UpdateAsync(mantenimiento);
     }
 }

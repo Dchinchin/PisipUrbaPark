@@ -5,6 +5,6 @@ namespace UrbaPark.Aplicacion.DTO;
 
 public class UpdateInformeEncabezadoDto
 {
-    public int? IdMantenimiento { get; set; }
-    public DateTime? Fecha { get; set; }
+    [StringLength(100, ErrorMessage = "El título no puede exceder los 100 caracteres.")]
+    public string? Titulo { get; set; }
 }

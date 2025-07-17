@@ -31,7 +31,7 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
             }
             catch (Exception e)
             {
-                throw new Exception("Error: No se pudo insertar Datos " + e.Message);
+                throw new Exception("Error: No se pudo insertar Datos " + e);
             }
         }
 
@@ -86,7 +86,8 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
                     query = query.Include(include);
                 }
 
-                return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id" + typeof(T).Name) == id);
+                var keyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
+                return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, keyName) == id);
             }
             catch (Exception e)
             {

@@ -18,7 +18,6 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
         {
             return await _UrbanParkContext.Informes_Encabezado
                 .Include(i => i.Detalle_Informe)
-                .Include(i => i.Bitacoras)
                 .FirstOrDefaultAsync(i => i.IdInforme == id);
         }
 
@@ -26,7 +25,6 @@ namespace UrbaPark.Infraestructura.AccesoDatos.Repositorio
         {
             return await _UrbanParkContext.Informes_Encabezado
                 .Include(i => i.Detalle_Informe)
-                .Include(i => i.Bitacoras)
                 .Where(filter)
                 .ToListAsync();
         }

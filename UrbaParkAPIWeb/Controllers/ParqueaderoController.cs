@@ -64,27 +64,15 @@ public class ParqueaderoController : ControllerBase
         }
     }
 
-    [HttpPut("{id}/activar")]
-    public async Task<IActionResult> ActivarParqueadero(int id)
-    {
-        try
-        {
-            await _parqueaderoAppService.ActivarParqueadero(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
+    
 
-    [HttpPut("{id}/desactivar")]
-    public async Task<IActionResult> DesactivarParqueadero(int id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            await _parqueaderoAppService.DesactivarParqueadero(id);
-            return NoContent();
+            await _parqueaderoAppService.DeleteParqueaderoAsync(id);
+            return Ok(true);
         }
         catch (KeyNotFoundException)
         {

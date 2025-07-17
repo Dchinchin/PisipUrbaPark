@@ -44,44 +44,43 @@ public class BitacoraAppService : IBitacoraAppService
             (!filter.IdMantenimiento.HasValue || b.IdMantenimiento == filter.IdMantenimiento.Value) &&
             (!filter.FechaDesde.HasValue || b.FechaHora >= filter.FechaDesde.Value) &&
             (!filter.FechaHasta.HasValue || b.FechaHora <= filter.FechaHasta.Value) &&
-            (string.IsNullOrEmpty(filter.Descripcion) || b.Descripcion.Contains(filter.Descripcion))
+            (string.IsNullOrEmpty(filter.Descripcion) || b.Descripcion.Contains(filter.Descripcion)) &&
+            (!filter.EstaEliminado.HasValue || b.EstaEliminado == filter.EstaEliminado.Value)
         );
 
         return bitacoras.Select(b => new BitacoraDto
         {
             IdBitacora = b.IdBitacora,
-            IdInforme = b.IdInforme,
             IdMantenimiento = b.IdMantenimiento,
             FechaHora = b.FechaHora,
             Descripcion = b.Descripcion,
-            ImagenUrl = GetAbsoluteUrl(b.ImagenUrl)
+            ImagenUrl = GetAbsoluteUrl(b.ImagenUrl),
+            EstaEliminado = b.EstaEliminado,
+            FechaCreacion = b.FechaCreacion,
+            FechaModificacion = b.FechaModificacion
         });
     }
 
     public async Task<BitacoraDto?> GetBitacoraByIdAsync(int id)
     {
         var bitacora = await _bitacoraRepositorio.GetByIdAsync(id);
-        if (bitacora == null) return null;
+        if (bitacora == null || bitacora.EstaEliminado) return null;
 
         return new BitacoraDto
         {
             IdBitacora = bitacora.IdBitacora,
-            IdInforme = bitacora.IdInforme,
             IdMantenimiento = bitacora.IdMantenimiento,
             FechaHora = bitacora.FechaHora,
             Descripcion = bitacora.Descripcion,
-            ImagenUrl = GetAbsoluteUrl(bitacora.ImagenUrl)
+            ImagenUrl = GetAbsoluteUrl(bitacora.ImagenUrl),
+            EstaEliminado = bitacora.EstaEliminado,
+            FechaCreacion = bitacora.FechaCreacion,
+            FechaModificacion = bitacora.FechaModificacion
         };
     }
 
     public async Task<BitacoraDto> CreateBitacoraAsync(CreateBitacoraDto bitacoraDto, IFormFile? imageFile)
     {
-        var mantenimientoExists = await _mantenimientoRepositorio.GetByIdAsync(bitacoraDto.IdMantenimiento);
-        if (mantenimientoExists == null)
-        {
-            throw new KeyNotFoundException($"Mantenimiento con ID {bitacoraDto.IdMantenimiento} no encontrado.");
-        }
-
         string? imageUrl = null;
         if (imageFile != null)
         {
@@ -102,11 +101,13 @@ public class BitacoraAppService : IBitacoraAppService
 
         var bitacora = new Bitacora
         {
-            IdInforme = null,
             IdMantenimiento = bitacoraDto.IdMantenimiento,
             FechaHora = bitacoraDto.FechaHora,
             Descripcion = bitacoraDto.Descripcion,
-            ImagenUrl = imageUrl
+            ImagenUrl = imageUrl,
+            EstaEliminado = false,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _bitacoraRepositorio.AddAsync(bitacora);
@@ -114,11 +115,13 @@ public class BitacoraAppService : IBitacoraAppService
         return new BitacoraDto
         {
             IdBitacora = bitacora.IdBitacora,
-            IdInforme = null,
             IdMantenimiento = bitacora.IdMantenimiento,
             FechaHora = bitacora.FechaHora,
             Descripcion = bitacora.Descripcion,
-            ImagenUrl = GetAbsoluteUrl(bitacora.ImagenUrl)
+            ImagenUrl = GetAbsoluteUrl(bitacora.ImagenUrl),
+            EstaEliminado = bitacora.EstaEliminado,
+            FechaCreacion = bitacora.FechaCreacion,
+            FechaModificacion = bitacora.FechaModificacion
         };
     }
 
@@ -127,17 +130,10 @@ public class BitacoraAppService : IBitacoraAppService
         var bitacora = await _bitacoraRepositorio.GetByIdAsync(id);
         if (bitacora == null) throw new KeyNotFoundException("Bitácora no encontrada.");
 
-        if (bitacoraDto.IdInforme.HasValue)
-        {
-            var informe = await _infoEncaRepositorio.GetByIdAsync(bitacoraDto.IdInforme.Value);
-            if (informe == null) throw new KeyNotFoundException("Informe no encontrado.");
-            if (informe.IdMantenimiento != bitacora.IdMantenimiento) throw new InvalidOperationException("La bitácora y el informe no son compatibles.");
-        }
-
         bitacora.IdMantenimiento = bitacoraDto.IdMantenimiento ?? bitacora.IdMantenimiento;
         bitacora.FechaHora = bitacoraDto.FechaHora ?? bitacora.FechaHora;
         bitacora.Descripcion = bitacoraDto.Descripcion ?? bitacora.Descripcion;
-        bitacora.IdInforme = bitacoraDto.IdInforme ?? bitacora.IdInforme;
+        bitacora.FechaModificacion = DateTime.Now;
 
         if (imageFile != null)
         {
@@ -167,11 +163,13 @@ public class BitacoraAppService : IBitacoraAppService
         return new BitacoraDto
         {
             IdBitacora = bitacora.IdBitacora,
-            IdInforme = bitacora.IdInforme,
             IdMantenimiento = bitacora.IdMantenimiento,
             FechaHora = bitacora.FechaHora,
             Descripcion = bitacora.Descripcion,
-            ImagenUrl = GetAbsoluteUrl(bitacora.ImagenUrl)
+            ImagenUrl = GetAbsoluteUrl(bitacora.ImagenUrl),
+            EstaEliminado = bitacora.EstaEliminado,
+            FechaCreacion = bitacora.FechaCreacion,
+            FechaModificacion = bitacora.FechaModificacion
         };
     }
 
@@ -180,11 +178,7 @@ public class BitacoraAppService : IBitacoraAppService
         var bitacora = await _bitacoraRepositorio.GetByIdAsync(id);
         if (bitacora == null) throw new KeyNotFoundException("Bitácora no encontrada.");
 
-        if (!string.IsNullOrEmpty(bitacora.ImagenUrl))
-        {
-            _fileStorageService.DeleteFile(bitacora.ImagenUrl, "images");
-        }
-
-        await _bitacoraRepositorio.DeleteAsync(id);
+        bitacora.EstaEliminado = true;
+        await _bitacoraRepositorio.UpdateAsync(bitacora);
     }
 }

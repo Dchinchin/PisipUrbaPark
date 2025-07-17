@@ -36,30 +36,36 @@ public class DetalleInformeAppService : IDetalleInformeAppService
     public async Task<IEnumerable<DetalleInformeDto>> GetFilteredDetallesInformeAsync(DetalleInformeFilterDto filter)
     {
         var detalles = await _detalleInformeRepositorio.GetAllAsync(d =>
-            (!filter.IdDetalleInforme.HasValue || d.id_detInfo == filter.IdDetalleInforme.Value) &&
-            (string.IsNullOrEmpty(filter.Descripcion) || d.descripcion.Contains(filter.Descripcion))
+            (!filter.IdDetalleInforme.HasValue || d.IdDetInfo == filter.IdDetalleInforme.Value) &&
+            (string.IsNullOrEmpty(filter.Descripcion) || d.Descripcion.Contains(filter.Descripcion)) &&
+            (!filter.EstaEliminado.HasValue || d.EstaEliminado == filter.EstaEliminado.Value)
         );
 
         return detalles.Select(d => new DetalleInformeDto
         {
-            IdDetInfo = d.id_detInfo,
-            IdInforme = d.id_informe,
-            Descripcion = d.descripcion,
-            ArchivoUrl = GetAbsoluteUrl(d.archivo_url)
+            IdDetInfo = d.IdDetInfo,
+            IdInforme = d.IdInforme,
+            Descripcion = d.Descripcion,
+            ArchivoUrl = GetAbsoluteUrl(d.ArchivoUrl),
+            FechaCreacion = d.FechaCreacion,
+            FechaModificacion = d.FechaModificacion,
+            Estado = d.EstaEliminado ? "Inactivo" : "Activo"
         });
     }
 
     public async Task<DetalleInformeDto?> GetDetalleInformeByIdAsync(int id)
     {
         var detalle = await _detalleInformeRepositorio.GetByIdAsync(id);
-        if (detalle == null) return null;
+        if (detalle == null || detalle.EstaEliminado) return null;
 
         return new DetalleInformeDto
         {
-            IdDetInfo = detalle.id_detInfo,
-            IdInforme = detalle.id_informe,
-            Descripcion = detalle.descripcion,
-            ArchivoUrl = GetAbsoluteUrl(detalle.archivo_url)
+            IdDetInfo = detalle.IdDetInfo,
+            IdInforme = detalle.IdInforme,
+            Descripcion = detalle.Descripcion,
+            ArchivoUrl = GetAbsoluteUrl(detalle.ArchivoUrl),
+            FechaCreacion = detalle.FechaCreacion,
+            FechaModificacion = detalle.FechaModificacion
         };
     }
 
@@ -85,19 +91,23 @@ public class DetalleInformeAppService : IDetalleInformeAppService
 
         var detalle = new Detalle_Informe
         {
-            id_informe = null,
-            descripcion = detalleInformeDto.Descripcion,
-            archivo_url = fileUrl
+            IdInforme = detalleInformeDto.IdInforme,
+            Descripcion = detalleInformeDto.Descripcion,
+            ArchivoUrl = fileUrl,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _detalleInformeRepositorio.AddAsync(detalle);
 
         return new DetalleInformeDto
         {
-            IdDetInfo = detalle.id_detInfo,
-            IdInforme = null,
-            Descripcion = detalle.descripcion,
-            ArchivoUrl = GetAbsoluteUrl(detalle.archivo_url)
+            IdDetInfo = detalle.IdDetInfo,
+            IdInforme = detalle.IdInforme,
+            Descripcion = detalle.Descripcion,
+            ArchivoUrl = GetAbsoluteUrl(detalle.ArchivoUrl),
+            FechaCreacion = detalle.FechaCreacion,
+            FechaModificacion = detalle.FechaModificacion
         };
     }
 
@@ -106,7 +116,8 @@ public class DetalleInformeAppService : IDetalleInformeAppService
         var detalle = await _detalleInformeRepositorio.GetByIdAsync(id);
         if (detalle == null) throw new KeyNotFoundException("Detalle de Informe no encontrado.");
 
-        detalle.descripcion = detalleInformeDto.Descripcion ?? detalle.descripcion;
+        detalle.Descripcion = detalleInformeDto.Descripcion ?? detalle.Descripcion;
+        detalle.FechaModificacion = DateTime.Now;
 
         if (archivoFile != null)
         {
@@ -118,15 +129,15 @@ public class DetalleInformeAppService : IDetalleInformeAppService
             }
 
             // Delete old file if exists
-            if (!string.IsNullOrEmpty(detalle.archivo_url))
+            if (!string.IsNullOrEmpty(detalle.ArchivoUrl))
             {
-                _fileStorageService.DeleteFile(detalle.archivo_url, "files");
+                _fileStorageService.DeleteFile(detalle.ArchivoUrl, "files");
             }
             using (var memoryStream = new MemoryStream())
             {
                 await archivoFile.CopyToAsync(memoryStream);
                 var archivoData = memoryStream.ToArray();
-                detalle.archivo_url = await _fileStorageService.SaveFileAsync(archivoData, archivoFile.FileName, "files");
+                detalle.ArchivoUrl = await _fileStorageService.SaveFileAsync(archivoData, archivoFile.FileName, "files");
             }
         }
         
@@ -135,10 +146,10 @@ public class DetalleInformeAppService : IDetalleInformeAppService
 
         return new DetalleInformeDto
         {
-            IdDetInfo = detalle.id_detInfo,
-            IdInforme = detalle.id_informe,
-            Descripcion = detalle.descripcion,
-            ArchivoUrl = GetAbsoluteUrl(detalle.archivo_url)
+            IdDetInfo = detalle.IdDetInfo,
+            IdInforme = detalle.IdInforme,
+            Descripcion = detalle.Descripcion,
+            ArchivoUrl = GetAbsoluteUrl(detalle.ArchivoUrl)
         };
     }
 
@@ -147,11 +158,7 @@ public class DetalleInformeAppService : IDetalleInformeAppService
         var detalle = await _detalleInformeRepositorio.GetByIdAsync(id);
         if (detalle == null) throw new KeyNotFoundException("Detalle de Informe no encontrado.");
 
-        if (!string.IsNullOrEmpty(detalle.archivo_url))
-        {
-            _fileStorageService.DeleteFile(detalle.archivo_url, "files");
-        }
-
-        await _detalleInformeRepositorio.DeleteAsync(id);
+        detalle.EstaEliminado = true;
+        await _detalleInformeRepositorio.UpdateAsync(detalle);
     }
 }

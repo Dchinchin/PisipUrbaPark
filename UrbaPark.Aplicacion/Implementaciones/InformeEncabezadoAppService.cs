@@ -1,29 +1,26 @@
+using Microsoft.AspNetCore.Http;
 using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.DTO;
 using UrbaPark.Dominio.Modelo.Abstracciones;
 using UrbaPark.Dominio.Modelo.Entidades;
-using Microsoft.AspNetCore.Http;
+
 
 namespace UrbaPark.Aplicacion.Implementaciones;
 
 public class InformeEncabezadoAppService : IInformeEncabezadoAppService
 {
     private readonly IInfo_EncaRepositorio _informeEncabezadoRepositorio;
+    private readonly IMantenimientoRepositorio _mantenimientoRepositorio;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public InformeEncabezadoAppService(IInfo_EncaRepositorio informeEncabezadoRepositorio, IHttpContextAccessor httpContextAccessor)
+    public InformeEncabezadoAppService(IInfo_EncaRepositorio informeEncabezadoRepositorio, IMantenimientoRepositorio mantenimientoRepositorio)
     {
         _informeEncabezadoRepositorio = informeEncabezadoRepositorio;
-        _httpContextAccessor = httpContextAccessor;
+        
+        _mantenimientoRepositorio = mantenimientoRepositorio;
     }
 
-    private string? GetAbsoluteUrl(string? relativeUrl)
-    {
-        if (string.IsNullOrEmpty(relativeUrl)) return null;
-        var request = _httpContextAccessor.HttpContext?.Request;
-        if (request == null) return relativeUrl; // Fallback if HttpContext is not available
-        return $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
+    
 
     public async Task<IEnumerable<InformeEncabezadoDto>> GetAllInformesEncabezadoAsync()
     {
@@ -34,52 +31,74 @@ public class InformeEncabezadoAppService : IInformeEncabezadoAppService
     {
         var informes = await _informeEncabezadoRepositorio.GetAllWithDetailsAsync(i =>
             (!filter.IdInforme.HasValue || i.IdInforme == filter.IdInforme.Value) &&
-            (!filter.IdUsuario.HasValue || i.IdMantenimiento == filter.IdUsuario.Value) && // Assuming IdUsuario in filter maps to IdMantenimiento in entity for filtering purposes, as IdUsuario is not directly in Informes_Encabezado
-            (!filter.FechaDesde.HasValue || i.Fecha >= filter.FechaDesde.Value) &&
-            (!filter.FechaHasta.HasValue || i.Fecha <= filter.FechaHasta.Value)
+            (!filter.IdUsuario.HasValue || i.IdUsuario == filter.IdUsuario.Value) &&
+            (!filter.FechaDesde.HasValue || i.FechaCreacion >= filter.FechaDesde.Value) &&
+            (!filter.FechaHasta.HasValue || i.FechaCreacion <= filter.FechaHasta.Value) &&
+            (!filter.EstaEliminado.HasValue || i.EstaEliminado == filter.EstaEliminado.Value)
         );
 
-        return informes.Select(i => new InformeEncabezadoDto
+        var informeDtos = new List<InformeEncabezadoDto>();
+        foreach (var i in informes)
         {
-            IdInforme = i.IdInforme,
-            IdMantenimiento = i.IdMantenimiento,
-            Fecha = i.Fecha,
-            Detalles = i.Detalle_Informe?.Select(d => new DetalleInformeDto
+            informeDtos.Add(new InformeEncabezadoDto
             {
-                IdDetInfo = d.id_detInfo,
-                IdInforme = d.id_informe,
-                Descripcion = d.descripcion,
-                ArchivoUrl = GetAbsoluteUrl(d.archivo_url)
-            }).ToList(),
-            Bitacoras = i.Bitacoras?.Select(b => new BitacoraDto
-            {
-                IdBitacora = b.IdBitacora,
-                IdInforme = b.IdInforme,
-                IdMantenimiento = b.IdMantenimiento,
-                FechaHora = b.FechaHora,
-                Descripcion = b.Descripcion,
-                ImagenUrl = GetAbsoluteUrl(b.ImagenUrl)
-            }).ToList()
-        });
+                IdInforme = i.IdInforme,
+                IdUsuario = i.IdUsuario,
+                Titulo = i.Titulo,
+                FechaCreacion = i.FechaCreacion,
+                FechaModificacion = i.FechaModificacion,
+                Estado = i.EstaEliminado ? "Inactivo" : "Activo",
+                Mantenimientos = i.Mantenimientos?.Select(m => new MantenimientoDto
+                {
+                    IdMantenimiento = m.IdMantenimiento,
+                    IdUsuario = m.IdUsuario,
+                    IdParqueadero = m.IdParqueadero,
+                    IdTipoMantenimiento = m.IdTipoMantenimiento
+                }).ToList(),
+                Detalles = i.Detalle_Informe?.Select(d => new DetalleInformeDto
+                {
+                    IdDetInfo = d.IdDetInfo,
+                    IdInforme = d.IdInforme,
+                    Descripcion = d.Descripcion,
+                    ArchivoUrl = GetAbsoluteUrl(d.ArchivoUrl),
+                    FechaCreacion = d.FechaCreacion,
+                    FechaModificacion = d.FechaModificacion,
+                    Estado = d.EstaEliminado ? "Inactivo" : "Activo"
+                }).ToList(),
+            });
+        }
+        return informeDtos;
     }
 
     public async Task<InformeEncabezadoDto?> GetInformeEncabezadoByIdAsync(int id)
     {
         var informe = await _informeEncabezadoRepositorio.GetByIdWithDetailsAsync(id);
-        if (informe == null) return null;
+        if (informe == null || informe.EstaEliminado) return null;
 
         return new InformeEncabezadoDto
         {
             IdInforme = informe.IdInforme,
-            IdMantenimiento = informe.IdMantenimiento,
-            Fecha = informe.Fecha,
+            IdUsuario = informe.IdUsuario,
+            Titulo = informe.Titulo,
+            FechaCreacion = informe.FechaCreacion,
+            FechaModificacion = informe.FechaModificacion,
+            Estado = informe.EstaEliminado ? "Inactivo" : "Activo",
+            Mantenimientos = informe.Mantenimientos?.Select(m => new MantenimientoDto
+            {
+                IdMantenimiento = m.IdMantenimiento,
+                IdUsuario = m.IdUsuario,
+                IdParqueadero = m.IdParqueadero,
+                IdTipoMantenimiento = m.IdTipoMantenimiento
+            }).ToList(),
             Detalles = informe.Detalle_Informe?.Select(d => new DetalleInformeDto
             {
-                IdDetInfo = d.id_detInfo,
-                IdInforme = d.id_informe,
-                Descripcion = d.descripcion,
-                ArchivoUrl = GetAbsoluteUrl(d.archivo_url)
-            }).ToList()
+                IdDetInfo = d.IdDetInfo,
+                IdInforme = d.IdInforme,
+                Descripcion = d.Descripcion,
+                ArchivoUrl = GetAbsoluteUrl(d.ArchivoUrl),
+                FechaCreacion = d.FechaCreacion,
+                FechaModificacion = d.FechaModificacion
+            }).ToList(),
         };
     }
 
@@ -87,8 +106,10 @@ public class InformeEncabezadoAppService : IInformeEncabezadoAppService
     {
         var informe = new Informes_Encabezado
         {
-            IdMantenimiento = informeEncabezadoDto.IdMantenimiento,
-            Fecha = informeEncabezadoDto.Fecha
+            IdUsuario = informeEncabezadoDto.IdUsuario,
+            Titulo = informeEncabezadoDto.Titulo,
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _informeEncabezadoRepositorio.AddAsync(informe);
@@ -96,8 +117,10 @@ public class InformeEncabezadoAppService : IInformeEncabezadoAppService
         return new InformeEncabezadoDto
         {
             IdInforme = informe.IdInforme,
-            IdMantenimiento = informe.IdMantenimiento,
-            Fecha = informe.Fecha
+            IdUsuario = informe.IdUsuario,
+            Titulo = informe.Titulo,
+            FechaCreacion = informe.FechaCreacion,
+            FechaModificacion = informe.FechaModificacion
         };
     }
 
@@ -106,21 +129,35 @@ public class InformeEncabezadoAppService : IInformeEncabezadoAppService
         var informe = await _informeEncabezadoRepositorio.GetByIdAsync(id);
         if (informe == null) throw new KeyNotFoundException("Informe de Encabezado no encontrado.");
 
-        informe.IdMantenimiento = informeEncabezadoDto.IdMantenimiento ?? informe.IdMantenimiento;
-        informe.Fecha = informeEncabezadoDto.Fecha ?? informe.Fecha;
+        informe.Titulo = informeEncabezadoDto.Titulo ?? informe.Titulo;
+        informe.FechaModificacion = DateTime.Now;
 
         await _informeEncabezadoRepositorio.UpdateAsync(informe);
 
         return new InformeEncabezadoDto
         {
             IdInforme = informe.IdInforme,
-            IdMantenimiento = informe.IdMantenimiento,
-            Fecha = informe.Fecha
+            IdUsuario = informe.IdUsuario,
+            Titulo = informe.Titulo,
+            FechaCreacion = informe.FechaCreacion,
+            FechaModificacion = informe.FechaModificacion
         };
     }
 
     public async Task DeleteInformeEncabezadoAsync(int id)
     {
-        await _informeEncabezadoRepositorio.DeleteAsync(id);
+        var informe = await _informeEncabezadoRepositorio.GetByIdAsync(id);
+        if (informe == null) throw new KeyNotFoundException("Informe de Encabezado no encontrado.");
+
+        informe.EstaEliminado = true;
+        await _informeEncabezadoRepositorio.UpdateAsync(informe);
+    }
+    
+    private string? GetAbsoluteUrl(string? relativeUrl)
+    {
+        if (string.IsNullOrEmpty(relativeUrl)) return null;
+        var request = _httpContextAccessor.HttpContext?.Request;
+        if (request == null) return relativeUrl; // Fallback if HttpContext is not available
+        return $"{request.Scheme}://{request.Host}{relativeUrl}";
     }
 }

@@ -64,4 +64,18 @@ public class DetalleInformeController : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _detalleInformeAppService.DeleteDetalleInformeAsync(id);
+            return Ok(true);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }

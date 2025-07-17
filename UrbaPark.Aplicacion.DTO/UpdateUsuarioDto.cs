@@ -16,8 +16,7 @@ public class UpdateUsuarioDto
     [StringLength(80, ErrorMessage = "El correo no puede exceder los 80 caracteres.")]
     public string? Correo { get; set; }
 
-    [StringLength(80, ErrorMessage = "El estado no puede exceder los 80 caracteres.")]
-    public string? Estado { get; set; }
+    public bool? EstaEliminado { get; set; }
 
     [StringLength(10, MinimumLength = 10, ErrorMessage = "La cédula debe tener 10 caracteres.")]
     public string? Cedula { get; set; }

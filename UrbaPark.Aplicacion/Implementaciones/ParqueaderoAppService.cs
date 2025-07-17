@@ -24,7 +24,8 @@ public class ParqueaderoAppService : IParqueaderoAppService
         var parqueaderos = await _parqueaderoRepositorio.GetAllAsync(p =>
             (!filter.IdParqueadero.HasValue || p.IdParqueadero == filter.IdParqueadero.Value) &&
             (string.IsNullOrEmpty(filter.Nombre) || p.Nombre.Contains(filter.Nombre)) &&
-            (string.IsNullOrEmpty(filter.Direccion) || p.Direccion.Contains(filter.Direccion))
+            (string.IsNullOrEmpty(filter.Direccion) || p.Direccion.Contains(filter.Direccion)) &&
+            (!filter.EstaEliminado.HasValue || p.EstaEliminado == filter.EstaEliminado.Value)
         );
 
         return parqueaderos.Select(p => new ParqueaderoDto
@@ -32,21 +33,25 @@ public class ParqueaderoAppService : IParqueaderoAppService
             IdParqueadero = p.IdParqueadero,
             Nombre = p.Nombre,
             Direccion = p.Direccion,
-            Estado = p.Estado
+            Estado = !p.EstaEliminado,
+            FechaCreacion = p.FechaCreacion,
+            FechaModificacion = p.FechaModificacion
         });
     }
 
     public async Task<ParqueaderoDto?> GetParqueaderoByIdAsync(int id)
     {
         var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(id);
-        if (parqueadero == null) return null;
+        if (parqueadero == null || parqueadero.EstaEliminado) return null;
 
         return new ParqueaderoDto
         {
             IdParqueadero = parqueadero.IdParqueadero,
             Nombre = parqueadero.Nombre,
             Direccion = parqueadero.Direccion,
-            Estado = parqueadero.Estado
+            Estado = !parqueadero.EstaEliminado,
+            FechaCreacion = parqueadero.FechaCreacion,
+            FechaModificacion = parqueadero.FechaModificacion
         };
     }
 
@@ -56,7 +61,9 @@ public class ParqueaderoAppService : IParqueaderoAppService
         {
             Nombre = parqueaderoDto.Nombre,
             Direccion = parqueaderoDto.Direccion,
-            Estado = "Activo" // Default to active on creation
+            EstaEliminado = false, // Default to not deleted on creation
+            FechaCreacion = DateTime.Now,
+            FechaModificacion = DateTime.Now
         };
 
         await _parqueaderoRepositorio.AddAsync(parqueadero);
@@ -66,7 +73,9 @@ public class ParqueaderoAppService : IParqueaderoAppService
             IdParqueadero = parqueadero.IdParqueadero,
             Nombre = parqueadero.Nombre,
             Direccion = parqueadero.Direccion,
-            Estado = parqueadero.Estado
+            Estado = !parqueadero.EstaEliminado,
+            FechaCreacion = parqueadero.FechaCreacion,
+            FechaModificacion = parqueadero.FechaModificacion
         };
     }
 
@@ -77,6 +86,7 @@ public class ParqueaderoAppService : IParqueaderoAppService
 
         parqueadero.Nombre = parqueaderoDto.Nombre ?? parqueadero.Nombre;
         parqueadero.Direccion = parqueaderoDto.Direccion ?? parqueadero.Direccion;
+        parqueadero.FechaModificacion = DateTime.Now;
 
         await _parqueaderoRepositorio.UpdateAsync(parqueadero);
 
@@ -85,28 +95,20 @@ public class ParqueaderoAppService : IParqueaderoAppService
             IdParqueadero = parqueadero.IdParqueadero,
             Nombre = parqueadero.Nombre,
             Direccion = parqueadero.Direccion,
-            Estado = parqueadero.Estado
+            Estado = !parqueadero.EstaEliminado,
+            FechaCreacion = parqueadero.FechaCreacion,
+            FechaModificacion = parqueadero.FechaModificacion
         };
     }
 
     public async Task DeleteParqueaderoAsync(int id)
     {
-        await _parqueaderoRepositorio.DeleteAsync(id);
-    }
-
-    public async Task ActivarParqueadero(int id)
-    {
         var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(id);
         if (parqueadero == null) throw new KeyNotFoundException("Parqueadero no encontrado.");
-        parqueadero.Estado = "Activo";
+
+        parqueadero.EstaEliminado = true;
         await _parqueaderoRepositorio.UpdateAsync(parqueadero);
     }
 
-    public async Task DesactivarParqueadero(int id)
-    {
-        var parqueadero = await _parqueaderoRepositorio.GetByIdAsync(id);
-        if (parqueadero == null) throw new KeyNotFoundException("Parqueadero no encontrado.");
-        parqueadero.Estado = "Inactivo";
-        await _parqueaderoRepositorio.UpdateAsync(parqueadero);
-    }
+    
 }

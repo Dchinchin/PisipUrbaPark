@@ -4,9 +4,10 @@ namespace UrbaPark.Aplicacion.DTO;
 
 public class CreateInformeEncabezadoDto
 {
-    [Required(ErrorMessage = "El ID de mantenimiento es obligatorio.")]
-    public int IdMantenimiento { get; set; }
+    [Required(ErrorMessage = "El ID de usuario es obligatorio.")]
+    public int IdUsuario { get; set; }
 
-    [Required(ErrorMessage = "La fecha es obligatoria.")]
-    public DateTime Fecha { get; set; }
+    [Required(ErrorMessage = "El título es obligatorio.")]
+    [StringLength(100, ErrorMessage = "El título no puede exceder los 100 caracteres.")]
+    public required string Titulo { get; set; }
 }

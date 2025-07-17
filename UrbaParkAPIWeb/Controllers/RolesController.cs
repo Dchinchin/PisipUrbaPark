@@ -63,4 +63,18 @@ public class RolesController : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _rolAppService.DeleteRolAsync(id);
+            return Ok(true);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }

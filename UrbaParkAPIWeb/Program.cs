@@ -7,6 +7,8 @@ using UrbaPark.Infraestructura.AccesoDatos.Repositorio;
 using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.Implementaciones;
 
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseWebRoot("wwwroot");
@@ -18,6 +20,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen();
+
+
 
 // Configure DbContext
 builder.Services.AddDbContext<Pisip_UrbanParkContext>(options =>
@@ -57,7 +61,9 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+
+
+
 
 app.MapControllers();
 
