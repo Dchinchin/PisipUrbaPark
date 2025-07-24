@@ -1,4 +1,3 @@
-
 using UrbaPark.Aplicacion.Abstracciones;
 using UrbaPark.Aplicacion.DTO;
 using UrbaPark.Dominio.Modelo.Abstracciones;
@@ -30,11 +29,13 @@ public class MantenimientoAppService : IMantenimientoAppService
                 (!filter.IdMantenimiento.HasValue || m.IdMantenimiento == filter.IdMantenimiento.Value) &&
                 (!filter.IdParqueadero.HasValue || m.IdParqueadero == filter.IdParqueadero.Value) &&
                 (!filter.IdTipoMantenimiento.HasValue || m.IdTipoMantenimiento == filter.IdTipoMantenimiento.Value) &&
+                (!filter.IdUsuario.HasValue || m.IdUsuario == filter.IdUsuario.Value) &&
                 (!filter.IdInforme.HasValue || m.IdInforme == filter.IdInforme.Value) &&
                 (!filter.FechaDesde.HasValue || m.FechaInicio >= filter.FechaDesde.Value) &&
                 (!filter.FechaHasta.HasValue || m.FechaFin <= filter.FechaHasta.Value) &&
                 (string.IsNullOrEmpty(filter.Descripcion) ||
                  (m.Observaciones != null && m.Observaciones.Contains(filter.Descripcion))) &&
+                (string.IsNullOrEmpty(filter.Estado) || m.Estado.Contains(filter.Estado)) &&
                 (!filter.EstaEliminado.HasValue || m.EstaEliminado == filter.EstaEliminado.Value),
             m => m.Bitacoras
         );
@@ -59,7 +60,7 @@ public class MantenimientoAppService : IMantenimientoAppService
                 IdMantenimiento = b.IdMantenimiento,
                 FechaHora = b.FechaHora,
                 Descripcion = b.Descripcion,
-                ImagenUrl = b.ImagenUrl,
+                ImagenUrl = $"http://localhost:5170/{b.ImagenUrl}",
                 EstaEliminado = b.EstaEliminado,
                 FechaCreacion = b.FechaCreacion,
                 FechaModificacion = b.FechaModificacion
@@ -94,7 +95,7 @@ public class MantenimientoAppService : IMantenimientoAppService
                 IdMantenimiento = b.IdMantenimiento,
                 FechaHora = b.FechaHora,
                 Descripcion = b.Descripcion,
-                ImagenUrl = b.ImagenUrl,
+                ImagenUrl = $"http://localhost:5170/{b.ImagenUrl}",
                 EstaEliminado = b.EstaEliminado,
                 FechaCreacion = b.FechaCreacion,
                 FechaModificacion = b.FechaModificacion
@@ -156,9 +157,9 @@ public class MantenimientoAppService : IMantenimientoAppService
 
         if (!string.IsNullOrEmpty(mantenimientoDto.Estado))
         {
-            if (mantenimientoDto.Estado != "Pendiente" && mantenimientoDto.Estado != "Terminado")
+            if (mantenimientoDto.Estado != "Pendiente" && mantenimientoDto.Estado != "Completado")
             {
-                throw new ArgumentException("El estado solo puede ser 'Pendiente' o 'Terminado'.");
+                throw new ArgumentException("El estado solo puede ser 'Pendiente' o 'Completado'.");
             }
 
             mantenimiento.Estado = mantenimientoDto.Estado;
@@ -186,7 +187,7 @@ public class MantenimientoAppService : IMantenimientoAppService
                 IdMantenimiento = b.IdMantenimiento,
                 FechaHora = b.FechaHora,
                 Descripcion = b.Descripcion,
-                ImagenUrl = b.ImagenUrl,
+                ImagenUrl = $"http://localhost:5170/{b.ImagenUrl}",
                 EstaEliminado = b.EstaEliminado,
                 FechaCreacion = b.FechaCreacion,
                 FechaModificacion = b.FechaModificacion

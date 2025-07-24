@@ -18,6 +18,7 @@ public partial class Usuarios
     public bool EstaEliminado { get; set; }
     public DateTime FechaCreacion { get; set; }
     public DateTime FechaModificacion { get; set; }
+    public bool ContrasenaActualizada { get; set; }
     
     public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();
     public virtual ICollection<Informes_Encabezado> InformesEncabezados { get; set; } = new List<Informes_Encabezado>();

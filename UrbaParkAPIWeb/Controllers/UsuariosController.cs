@@ -67,12 +67,12 @@ public class UsuariosController : ControllerBase
     [HttpPost("autenticar")]
     public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequestDto request)
     {
-        var isAuthenticated = await _usuarioAppService.Authenticate(request);
-        if (isAuthenticated)
+        var response = await _usuarioAppService.Authenticate(request);
+        if (response.Autenticado)
         {
-            return Ok(true);
+            return Ok(response);
         }
-        return Unauthorized(false);
+        return Unauthorized(response);
     }
 
     

@@ -16,6 +16,8 @@ public class CreateMantenimientoDto
 
     [Required(ErrorMessage = "La fecha de inicio es obligatoria.")]
     public DateTime FechaInicio { get; set; }
+    
+    [Required(ErrorMessage = "La fecha de fin es obligatoria.")]
     public DateTime? FechaFin { get; set; }
 
     [StringLength(80, ErrorMessage = "Las observaciones no pueden exceder los 80 caracteres.")]
