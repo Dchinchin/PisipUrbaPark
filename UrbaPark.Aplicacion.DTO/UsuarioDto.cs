@@ -14,4 +14,5 @@ public class UsuarioDto
     public DateTime FechaCreacion { get; set; }
     public DateTime FechaModificacion { get; set; }
     public bool EstaEliminado { get; set; }
+    public bool ContrasenaActualizada { get; set; }
 }

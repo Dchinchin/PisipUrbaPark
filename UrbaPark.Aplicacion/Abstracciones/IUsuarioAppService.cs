@@ -10,7 +10,7 @@ public interface IUsuarioAppService
     Task<UsuarioDto?> GetUsuarioByIdAsync(int id);
     Task<UsuarioDto> CreateUsuarioAsync(CreateUsuarioDto usuarioDto);
     Task<UsuarioDto> UpdateUsuarioAsync(int id, UpdateUsuarioDto usuarioDto);
-    Task<bool> Authenticate(AuthenticateRequestDto request);
+    Task<AuthenticationResponseDto> Authenticate(AuthenticateRequestDto request);
     
     Task DeleteUsuarioAsync(int id);
     int GetCurrentUserId();

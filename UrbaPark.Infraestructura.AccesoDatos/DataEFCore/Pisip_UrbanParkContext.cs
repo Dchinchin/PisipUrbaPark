@@ -174,7 +174,8 @@ public partial class Pisip_UrbanParkContext : DbContext
             entity.Property(e => e.EstaEliminado).HasColumnName("esta_eliminado");
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion").HasColumnType("datetime");
             entity.Property(e => e.FechaModificacion).HasColumnName("fecha_modificacion").HasColumnType("datetime");
-
+            entity.Property(e => e.ContrasenaActualizada).HasColumnName("contrasena_actualizada");
+            
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
                 .HasConstraintName("FK_Usuario_Rol");

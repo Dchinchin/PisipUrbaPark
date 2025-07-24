@@ -46,7 +46,8 @@ public class UsuarioAppService : IUsuarioAppService
             EstaEliminado = u.EstaEliminado,
             Cedula = u.Cedula,
             FechaCreacion = u.FechaCreacion,
-            FechaModificacion = u.FechaModificacion
+            FechaModificacion = u.FechaModificacion,
+            ContrasenaActualizada = u.ContrasenaActualizada
         });
     }
 
@@ -65,7 +66,8 @@ public class UsuarioAppService : IUsuarioAppService
             EstaEliminado = usuario.EstaEliminado,
             Cedula = usuario.Cedula,
             FechaCreacion = usuario.FechaCreacion,
-            FechaModificacion = usuario.FechaModificacion
+            FechaModificacion = usuario.FechaModificacion,
+            ContrasenaActualizada = usuario.ContrasenaActualizada
         };
     }
 
@@ -80,7 +82,8 @@ public class UsuarioAppService : IUsuarioAppService
             Cedula = usuarioDto.Cedula,
             Contrasena = usuarioDto.Contrasena,
             FechaCreacion = DateTime.Now,
-            FechaModificacion = DateTime.Now
+            FechaModificacion = DateTime.Now,
+            ContrasenaActualizada = false
         };
 
         await _usuariosRepositorio.AddAsync(usuario);
@@ -95,7 +98,8 @@ public class UsuarioAppService : IUsuarioAppService
             EstaEliminado = usuario.EstaEliminado,
             Cedula = usuario.Cedula,
             FechaCreacion = usuario.FechaCreacion,
-            FechaModificacion = usuario.FechaModificacion
+            FechaModificacion = usuario.FechaModificacion,
+            ContrasenaActualizada = usuario.ContrasenaActualizada
         };
     }
 
@@ -111,6 +115,11 @@ public class UsuarioAppService : IUsuarioAppService
         usuario.EstaEliminado = usuarioDto.EstaEliminado ?? usuario.EstaEliminado;
         usuario.Cedula = usuarioDto.Cedula ?? usuario.Cedula;
         usuario.FechaModificacion = DateTime.Now;
+
+        if (usuarioDto.ContrasenaActualizada.HasValue)
+        {
+            usuario.ContrasenaActualizada = usuarioDto.ContrasenaActualizada.Value;
+        }
 
         if (!string.IsNullOrEmpty(usuarioDto.Contrasena))
         {
@@ -129,7 +138,8 @@ public class UsuarioAppService : IUsuarioAppService
             EstaEliminado = usuario.EstaEliminado,
             Cedula = usuario.Cedula,
             FechaCreacion = usuario.FechaCreacion,
-            FechaModificacion = usuario.FechaModificacion
+            FechaModificacion = usuario.FechaModificacion,
+            ContrasenaActualizada = usuario.ContrasenaActualizada
         };
     }
 
@@ -142,14 +152,21 @@ public class UsuarioAppService : IUsuarioAppService
         await _usuariosRepositorio.UpdateAsync(usuario);
     }
 
-    public async Task<bool> Authenticate(AuthenticateRequestDto request)
+    public async Task<AuthenticationResponseDto> Authenticate(AuthenticateRequestDto request)
     {
         var user = await _usuariosRepositorio.GetByEmailAsync(request.Correo);
-        if (user == null || user.EstaEliminado) // Use EstaEliminado for logical delete check
+        if (user == null || user.EstaEliminado)
         {
-            return false;
+            return new AuthenticationResponseDto { Autenticado = false, ContrasenaActualizada = false };
         }
-        return _hashService.VerifyPassword(request.Contrasena, user.Contrasena);
+
+        bool isAuthenticated = _hashService.VerifyPassword(request.Contrasena, user.Contrasena);
+
+        return new AuthenticationResponseDto
+        {
+            Autenticado = isAuthenticated,
+            ContrasenaActualizada = user.ContrasenaActualizada
+        };
     }
 
     public int GetCurrentUserId()
